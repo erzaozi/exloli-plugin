@@ -15,7 +15,7 @@ try {
  */
 class Log {
   constructor () {
-    this.header = `【exloli-Plugin v${currentVersion}】`
+    this.header = `【EXloli-Plugin v${currentVersion}】`
   }
 
   /** 快捷执行logger.info( )  */

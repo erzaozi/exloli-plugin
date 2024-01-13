@@ -7,6 +7,19 @@ import Config from '../components/Config.js';
 import Log from '../utils/logs.js';
 import plugin from '../../../lib/plugins/plugin.js';
 
+// 组合合并转发函数
+async function mergeForward(picList) {
+    picList.forEach(pic => {
+        let forwardMsg = [];
+        forwardMsg.push({
+            user_id: Bot.uin,
+            nickname: Bot.nickname,
+            message: segment.image(pic)
+          });
+    });
+    return forwardMsg;
+}
+
 // 推送漫画函数
 async function pushComics(comicDifferences, pushConfig) {
     const { user: userList, group: groupList } = pushConfig;
@@ -17,6 +30,7 @@ async function pushComics(comicDifferences, pushConfig) {
         userList.forEach(user => {
             try {
                 Bot.pickUser(user).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                Bot.pickUser(user).sendForwardMsg(mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
             }
@@ -26,6 +40,7 @@ async function pushComics(comicDifferences, pushConfig) {
         groupList.forEach(group => {
             try {
                 Bot.pickGroup(group).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                Bot.pickGroup(group).sendForwardMsg(mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
             }
