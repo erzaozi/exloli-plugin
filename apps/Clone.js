@@ -1,12 +1,9 @@
 import Plugin from '../../../lib/plugins/plugin.js';
 import Log from '../utils/logs.js';
+import Config from '../components/Config.js';
 import { pluginRoot } from '../model/path.js';
 import simpleGit from 'simple-git';
 import fs from 'fs';
-
-const GITHUB_TOKEN = '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';
-const GITHUB_USERNAME = 'erzaozi';
-const REPOSITORY_URL = 'https://github.com/erzaozi/exlolicomic.git';
 
 export class Clone extends Plugin {
   constructor() {
@@ -49,8 +46,10 @@ export class Clone extends Plugin {
     await e.reply('正在尝试克隆数据库，请稍后');
     const git = simpleGit();
     try {
-      const cloneUrl = REPOSITORY_URL.replace('https://', `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@`);
-      await git.clone(cloneUrl, repositoryPath);
+      const GITHUB_TOKEN = Config.getConfig().lolicon_token
+      const GITHUB_USERNAME = 'erzaozi';
+      await git.clone(`https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@mirror.ghproxy.com/https://github.com/erzaozi/exlolicomic.git`, repositoryPath);
+      await e.reply('克隆成功，插件已经准备好推送啦');
     } catch (err) {
       Log.e(err);
       await e.reply('克隆失败，请检查网络或更新插件');

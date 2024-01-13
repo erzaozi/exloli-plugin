@@ -7,8 +7,6 @@ import Config from '../components/Config.js';
 import Log from '../utils/logs.js';
 import plugin from '../../../lib/plugins/plugin.js';
 
-const repositoryUrl = 'https://github.com/erzaozi/exlolicomic.git';
-
 // 推送漫画函数
 async function pushComics(comicDifferences, pushConfig) {
     const { user: userList, group: groupList } = pushConfig;
@@ -53,7 +51,9 @@ async function checkAndUpdateComics() {
         let currentComicList = Config.getComicList();
         const git = simpleGit();
         try {
-            await git.cwd(comicsPath).pull(repositoryUrl, 'main', { '--rebase': 'true' });
+            const GITHUB_TOKEN = Config.getConfig().lolicon_token
+            const GITHUB_USERNAME = 'erzaozi';
+            await git.cwd(comicsPath).pull(`https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@mirror.ghproxy.com/https://github.com/erzaozi/exlolicomic.git`, 'main', { '--rebase': 'true' });
             let updatedComicList = Config.getComicList();
             let comicDifferences = _.differenceWith(updatedComicList, currentComicList, _.isEqual);
 
@@ -71,7 +71,7 @@ async function checkAndUpdateComics() {
 }
 
 // 每10分钟检查一次
-schedule.scheduleJob('*/10 * * * *', checkAndUpdateComics);
+schedule.scheduleJob('*/1 * * * *', checkAndUpdateComics);
 
 export class Push extends plugin {
     constructor() {
