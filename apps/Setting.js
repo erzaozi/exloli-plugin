@@ -33,7 +33,6 @@ export class Setting extends plugin {
         const id = isGroupMessage ? e.group_id : e.user_id;
         const isOpening = e.msg.includes('开启');
 
-        // 判断是否克隆了数据库
         if (isOpening) {
             const exlolicomic_path = `${pluginRoot}/exlolicomic`
             if (!fs.existsSync(exlolicomic_path)) {
