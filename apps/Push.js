@@ -9,8 +9,8 @@ import plugin from '../../../lib/plugins/plugin.js';
 
 // 组合合并转发函数
 async function mergeForward(picList) {
+    let forwardMsg = [];
     picList.forEach(pic => {
-        let forwardMsg = [];
         forwardMsg.push({
             user_id: Bot.uin,
             nickname: Bot.nickname,
@@ -50,7 +50,7 @@ async function pushComics(comicDifferences, pushConfig) {
 
 // 创建漫画信息
 function createComicMessage(comic) {
-    let message = `\n${comic.title}\n\n上传时间：${comic.posted}(${comic.uploader})\n`;
+    let message = `\n${comic.title}\n\n上传时间：${comic.posted}\n`;
     Object.entries(comic.info).forEach(([key, values]) => {
         message += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
     });
