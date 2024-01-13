@@ -27,6 +27,12 @@ export class Setting extends plugin {
                     reg: '^#?exloli设置token.*$',
                     /** 执行方法 */
                     fnc: 'token',
+                },
+                {
+                    /** 命令正则匹配 */
+                    reg: '^#?exloli(开启|关闭)发送漫画$',
+                    /** 执行方法 */
+                    fnc: 'send_pic',
                 }
             ]
         })
@@ -89,6 +95,20 @@ export class Setting extends plugin {
         config.lolicon_token = token;
         Config.setConfig(config);
         e.reply("设置成功，请使用 #exloli克隆 命令克隆数据库，就可以使用啦~")
+        return true
+    }
+
+    async send_pic(e) {
+        const isOpening = e.msg.includes('开启');
+        let config = Config.getConfig();
+        if (isOpening) {
+            config.send_pic = true
+            await e.reply("已打开漫画推送，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+        } else {
+            config.send_pic = false
+            await e.reply("已关闭漫画推送")
+        }
+        Config.setConfig(config);
         return true
     }
 }

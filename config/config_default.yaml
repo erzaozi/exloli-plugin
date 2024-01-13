@@ -2,3 +2,4 @@ push_list:
   user: []
   group: []
 lolicon_token: ''
+push_pic: false

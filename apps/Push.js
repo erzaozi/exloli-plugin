@@ -31,7 +31,9 @@ async function pushComics(comicDifferences, pushConfig) {
         userList.forEach(async user => {
             try {
                 await Bot.pickUser(user).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
-                await Bot.pickUser(user).sendForwardMsg(await mergeForward(comic.pages_url));
+                if (Config.getConfig().push_pic) {
+                    await Bot.pickUser(user).sendForwardMsg(await mergeForward(comic.pages_url));
+                }
             } catch (error) {
                 Log.e(error);
             }
@@ -41,7 +43,9 @@ async function pushComics(comicDifferences, pushConfig) {
         groupList.forEach(async group => {
             try {
                 await Bot.pickGroup(group).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
-                await Bot.pickGroup(group).sendForwardMsg(await mergeForward(comic.pages_url));
+                if (Config.getConfig().push_pic) {
+                    await Bot.pickGroup(group).sendForwardMsg(await mergeForward(comic.pages_url));
+                }
             } catch (error) {
                 Log.e(error);
             }
