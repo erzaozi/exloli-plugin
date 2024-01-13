@@ -35,12 +35,12 @@ async function pushComics(comicDifferences, pushConfig) {
 
 // 创建漫画信息
 function createComicMessage(comic) {
-    let message = 'EXLOLI-PLUGIN 每日萝莉本子推送\n\n';
-    message += `标题：${comic.title}\n发布时间：${comic.posted}\n上传者：${comic.uploader}\n页数：${comic.pages}\n`;
+    let message = 'EXLOLI-PLUGIN 每日萝莉本子\n\n';
+    message += `${comic.title}\n\n上传时间：${comic.posted}(${comic.uploader})\n`;
     Object.entries(comic.info).forEach(([key, values]) => {
         message += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
     });
-    message += `原始链接：${comic.link}`;
+    message += `页数：${comic.pages}\n原始地址：${comic.link}`;
     return message;
 }
 
