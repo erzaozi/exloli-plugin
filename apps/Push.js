@@ -16,7 +16,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to users
         userList.forEach(user => {
             try {
-                Bot.pickUser(user).sendMsg([comicMessage, segment.image(comic.cover)]);
+                Bot.pickUser(user).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
             } catch (error) {
                 Log.e(error);
             }
@@ -25,7 +25,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to groups
         groupList.forEach(group => {
             try {
-                Bot.pickGroup(group).sendMsg([comicMessage, segment.image(comic.cover)]);
+                Bot.pickGroup(group).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
             } catch (error) {
                 Log.e(error);
             }
@@ -35,8 +35,7 @@ async function pushComics(comicDifferences, pushConfig) {
 
 // 创建漫画信息
 function createComicMessage(comic) {
-    let message = 'EXLOLI-PLUGIN 每日萝莉本子\n\n';
-    message += `${comic.title}\n\n上传时间：${comic.posted}(${comic.uploader})\n`;
+    let message = `\n${comic.title}\n\n上传时间：${comic.posted}(${comic.uploader})\n`;
     Object.entries(comic.info).forEach(([key, values]) => {
         message += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
     });
