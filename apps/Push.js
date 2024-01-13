@@ -1,5 +1,6 @@
 import fs from 'fs';
 import _ from 'lodash';
+import path from 'path';
 import simpleGit from 'simple-git';
 import schedule from 'node-schedule';
 import { pluginRoot } from '../model/path.js';
@@ -61,7 +62,7 @@ function createComicMessage(comic) {
 // 检查并更新漫画
 async function checkAndUpdateComics() {
     const comicsPath = `${pluginRoot}/exlolicomic`;
-    if (fs.existsSync(comicsPath)) {
+    if (fs.existsSync(comicsPath) && fs.existsSync(path.join(comicsPath, 'db.lolicon.yaml'))) {
         let currentComicList = Config.getComicList();
         const git = simpleGit();
         try {

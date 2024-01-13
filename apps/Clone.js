@@ -4,6 +4,7 @@ import Config from '../components/Config.js';
 import { pluginRoot } from '../model/path.js';
 import simpleGit from 'simple-git';
 import fs from 'fs';
+import path from 'path';
 
 export class Clone extends Plugin {
   constructor() {
@@ -39,7 +40,7 @@ export class Clone extends Plugin {
   }
 
   isRepositoryCloned(repositoryPath) {
-    return fs.existsSync(repositoryPath);
+    return fs.existsSync(repositoryPath) && fs.existsSync(path.join(repositoryPath, 'db.lolicon.yaml'));
   }
 
   async cloneRepository(e, repositoryPath) {
@@ -48,8 +49,15 @@ export class Clone extends Plugin {
     try {
       const GITHUB_TOKEN = Config.getConfig().lolicon_token
       const GITHUB_USERNAME = 'erzaozi';
+      if (fs.existsSync(repositoryPath)) fs.rmdirSync(repositoryPath, { recursive: true });
       await git.clone(`https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@mirror.ghproxy.com/https://github.com/erzaozi/exlolicomic.git`, repositoryPath);
-      await e.reply('克隆成功，插件已经准备好推送啦！sensei注意身体哦！');
+      const filePath = path.join(repositoryPath, 'db.lolicon.yaml');
+      if (fs.existsSync(filePath)) {
+        await e.reply('克隆成功，插件已经准备好推送啦！sensei注意身体哦！');
+      } else {
+        fs.rmdirSync(repositoryPath, { recursive: true });
+        await e.reply('克隆失败，肯定不是插件的问题！请检查网络或更新插件再试试吧~');
+      }
     } catch (err) {
       Log.e(err);
       await e.reply('克隆失败，肯定不是插件的问题！请检查网络或更新插件再试试吧~');

@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { pluginRoot } from '../model/path.js'
 import fs from 'fs'
 import Config from '../components/Config.js';
+import path from 'path';
 
 export class Setting extends plugin {
     constructor() {
@@ -35,7 +36,7 @@ export class Setting extends plugin {
 
         if (isOpening) {
             const exlolicomic_path = `${pluginRoot}/exlolicomic`
-            if (!fs.existsSync(exlolicomic_path)) {
+            if (!fs.existsSync(exlolicomic_path) || !fs.existsSync(path.join(exlolicomic_path, 'db.lolicon.yaml'))) {
                 await e.reply('检测到没有克隆数据库，请使用 #exloli克隆 命令克隆数据库再使用推送功能哦~');
                 return true;
             }
