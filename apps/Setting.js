@@ -102,10 +102,10 @@ export class Setting extends plugin {
         const isOpening = e.msg.includes('开启');
         let config = Config.getConfig();
         if (isOpening) {
-            config.send_pic = true
+            config.push_pic = true
             await e.reply("已打开漫画推送，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
         } else {
-            config.send_pic = false
+            config.push_pic = false
             await e.reply("已关闭漫画推送")
         }
         Config.setConfig(config);
