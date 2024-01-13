@@ -9,30 +9,30 @@ import Log from '../utils/logs.js';
 import fetch from 'node-fetch';
 import plugin from '../../../lib/plugins/plugin.js';
 
-// 组合合并转发函数
 async function mergeForward(picList) {
-    let forwardMsg = [];
-    let isSendBase64 = Config.getConfig().send_base64;
+    const isSendBase64 = Config.getConfig().send_base64;
 
-    for (let pic of picList) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        let message;
-        if (isSendBase64) {
-            let base64 = await (await fetch(pic)).buffer().then(buffer => buffer.toString('base64'));
-            message = segment.image(`base64://${base64}`);
-        } else {
-            message = segment.image(pic);
+    async function fetchAndConvertImage(url, retries = 3) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const buffer = await response.buffer();
+            return isSendBase64 ? `base64://${buffer.toString('base64')}` : url;
+        } catch (error) {
+            if (retries > 0) return fetchAndConvertImage(url, retries - 1);
+            throw error;
         }
-
-        forwardMsg.push({
-            user_id: Bot.uin,
-            nickname: Bot.nickname,
-            message: message
-        });
     }
 
-    return forwardMsg;
+    const messages = await Promise.all(picList.map(pic => 
+        fetchAndConvertImage(pic).then(image => ({
+            user_id: Bot.uin,
+            nickname: Bot.nickname,
+            message: segment.image(image)
+        }))
+    ));
+
+    return messages;
 }
 
 // 推送漫画函数
