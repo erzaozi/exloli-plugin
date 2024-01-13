@@ -39,6 +39,11 @@ export class Setting extends plugin {
     }
 
     async setting(e) {
+        if (!e.isMaster) {
+            e.reply('臭萝莉控滚开啊！变态！！');
+            return true;
+        }
+        
         let config = Config.getConfig();
 
         const isGroupMessage = !!e.group_id;
@@ -52,11 +57,6 @@ export class Setting extends plugin {
                 await e.reply('检测到没有克隆数据库，请使用 #exloli克隆 命令克隆数据库再使用推送功能哦~');
                 return true;
             }
-        }
-
-        if (isGroupMessage && e.sender.role !== 'owner' && e.sender.role !== 'admin') {
-            await e.reply('只有管理员才可以开启推送哦~');
-            return true;
         }
 
         const index = list.indexOf(id);
