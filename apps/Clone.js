@@ -29,6 +29,10 @@ export class Clone extends Plugin {
     if (this.isRepositoryCloned(repositoryPath)) {
       await e.reply('数据库已存在，插件已经准备好推送啦！sensei准备好了吗？');
     } else {
+      if (!Config.getConfig().lolicon_tokenn) {
+        e.reply("你没有设置数据库公钥，请加群 551081559 联系管理员（四條戀路）获取", true)
+        return true
+      }
       await this.cloneRepository(e, repositoryPath);
     }
 
