@@ -19,7 +19,7 @@ async function mergeForward(picList) {
         
         let message;
         if (isSendBase64) {
-            let base64 = (await fetch(pic)).buffer().then(buffer => buffer.toString('base64'));
+            let base64 = await (await fetch(pic)).buffer().then(buffer => buffer.toString('base64'));
             message = segment.image(`base64://${base64}`);
         } else {
             message = segment.image(pic);
