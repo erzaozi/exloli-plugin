@@ -15,6 +15,8 @@ async function mergeForward(picList) {
     let isSendBase64 = Config.getConfig().send_base64;
 
     for (let pic of picList) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         let message;
         if (isSendBase64) {
             let base64 = (await fetch(pic)).buffer().then(buffer => buffer.toString('base64'));
