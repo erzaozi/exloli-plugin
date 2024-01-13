@@ -6,18 +6,30 @@ import schedule from 'node-schedule';
 import { pluginRoot } from '../model/path.js';
 import Config from '../components/Config.js';
 import Log from '../utils/logs.js';
+import fetch from 'node-fetch';
 import plugin from '../../../lib/plugins/plugin.js';
 
 // 组合合并转发函数
 async function mergeForward(picList) {
     let forwardMsg = [];
-    picList.forEach(pic => {
+    let isSendBase64 = Config.getConfig().send_base64;
+
+    for (let pic of picList) {
+        let message;
+        if (isSendBase64) {
+            let base64 = (await fetch(pic)).buffer().then(buffer => buffer.toString('base64'));
+            message = segment.image(`base64://${base64}`);
+        } else {
+            message = segment.image(pic);
+        }
+
         forwardMsg.push({
             user_id: Bot.uin,
             nickname: Bot.nickname,
-            message: segment.image(pic)
-          });
-    });
+            message: message
+        });
+    }
+
     return forwardMsg;
 }
 

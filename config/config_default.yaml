@@ -3,3 +3,4 @@ push_list:
   group: []
 lolicon_token: ''
 push_pic: false
+send_base64: true
