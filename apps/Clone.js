@@ -9,8 +9,8 @@ import path from 'path';
 export class Clone extends Plugin {
   constructor() {
     super({
-      name: 'EXLOLI-克隆数据库',
-      dsc: 'EXLOLI 克隆数据库',
+      name: 'ExLOLI-克隆数据库',
+      dsc: 'ExLOLI 克隆数据库',
       event: 'message',
       priority: 1009,
       rule: [{

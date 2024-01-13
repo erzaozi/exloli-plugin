@@ -9,9 +9,9 @@ export class Setting extends plugin {
     constructor() {
         super({
             /** 功能名称 */
-            name: 'EXLOLI-推送开关',
+            name: 'ExLOLI-推送开关',
             /** 功能描述 */
-            dsc: 'EXLOLI 推送开关',
+            dsc: 'ExLOLI 推送开关',
             event: 'message',
             /** 优先级，数字越小等级越高 */
             priority: 1009,

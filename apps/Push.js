@@ -30,7 +30,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to users
         userList.forEach(async user => {
             try {
-                await Bot.pickUser(user).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot.pickUser(user).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
                 await Bot.pickUser(user).sendForwardMsg(await mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
@@ -40,7 +40,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to groups
         groupList.forEach(async group => {
             try {
-                await Bot.pickGroup(group).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot.pickGroup(group).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
                 await Bot.pickGroup(group).sendForwardMsg(await mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
@@ -91,8 +91,8 @@ schedule.scheduleJob('*/1 * * * *', checkAndUpdateComics);
 export class Push extends plugin {
     constructor() {
         super({
-            name: 'EXLOLI-推送',
-            dsc: 'EXLOLI 推送',
+            name: 'ExLOLI-推送',
+            dsc: 'ExLOLI 推送',
             event: 'message',
             priority: 1009,
             rule: [{

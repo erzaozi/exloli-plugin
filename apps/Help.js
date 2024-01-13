@@ -11,9 +11,9 @@ export class Help extends plugin {
   constructor() {
     super({
       /** 功能名称 */
-      name: 'EXLOLI-帮助',
+      name: 'ExLOLI-帮助',
       /** 功能描述 */
-      dsc: 'EXLOLI 帮助',
+      dsc: 'ExLOLI 帮助',
       event: 'message',
       /** 优先级，数字越小等级越高 */
       priority: 1009,
@@ -31,8 +31,8 @@ export class Help extends plugin {
   async help(e) {
     const helpCfg = {
       themeSet: false,
-      title: '#EXLOLI-plugin帮助',
-      subTitle: 'Yunzai-Bot & EXLOLI-plugin',
+      title: '#ExLOLI-plugin帮助',
+      subTitle: 'Yunzai-Bot & ExLOLI-plugin',
       colWidth: 265,
       theme: 'all',
       themeExclude: ['default'],
@@ -41,23 +41,43 @@ export class Help extends plugin {
     }
     const helpList = [
       {
-        group: 'EXLOLI-功能',
+        group: 'ExLOLI-推送',
         list: [
           {
             icon: 1,
-            title: '#gg<内容>',
-            desc: '与 GPT 进行连续对话'
+            title: '#exloli开启推送',
+            desc: '在哪发送就在哪开启推送'
+          },
+          {
+            icon: 2,
+            title: '#exloli关闭推送',
+            desc: '在哪发送就在哪关闭推送'
+          },
+          {
+            icon: 3,
+            title: '#exloli推送',
+            desc: '立即向设置的群和好友推送最新的那本漫画'
           }
         ]
       },
       {
-        group: 'EXLOLI-设置（暂不可用）',
+        group: 'ExLOLI-设置',
         list: [
           {
-            icon: 12,
-            title: '#exloli设置gpt模型<模型名称>',
-            desc: '修改使用的 GPT 模型'
-          }
+            icon: 4,
+            title: '#exloli设置token<token>',
+            desc: '设置数据库公钥，用于克隆与拉取数据库'
+          },
+          {
+            icon: 5,
+            title: '#exloli克隆',
+            desc: '克隆云端最新的数据库'
+          },
+          {
+            icon: 6,
+            title: '#exloli更新',
+            desc: '更新ExLOLI插件'
+          },
         ]
       }
     ]
