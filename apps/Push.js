@@ -27,20 +27,20 @@ async function pushComics(comicDifferences, pushConfig) {
         let comicMessage = createComicMessage(comic);
 
         // Push to users
-        userList.forEach(user => {
+        userList.forEach(async user => {
             try {
-                Bot.pickUser(user).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
-                Bot.pickUser(user).sendForwardMsg(mergeForward(comic.pages_url));
+                await Bot.pickUser(user).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot.pickUser(user).sendForwardMsg(await mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
             }
         });
 
         // Push to groups
-        groupList.forEach(group => {
+        groupList.forEach(async group => {
             try {
-                Bot.pickGroup(group).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
-                Bot.pickGroup(group).sendForwardMsg(mergeForward(comic.pages_url));
+                await Bot.pickGroup(group).sendMsg(["EXLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot.pickGroup(group).sendForwardMsg(await mergeForward(comic.pages_url));
             } catch (error) {
                 Log.e(error);
             }
@@ -50,11 +50,11 @@ async function pushComics(comicDifferences, pushConfig) {
 
 // 创建漫画信息
 function createComicMessage(comic) {
-    let message = `\n${comic.title}\n\n上传时间：${comic.posted}\n`;
+    let message = `\n${comic.title}\n\n`;
     Object.entries(comic.info).forEach(([key, values]) => {
         message += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
     });
-    message += `页数：${comic.pages}\n原始地址：${comic.link}`;
+    message += `页数：${comic.pages}\n上传时间：${comic.posted}\n原始地址：${comic.link}`;
     return message;
 }
 
@@ -102,6 +102,10 @@ export class Push extends plugin {
     }
 
     async push() {
-        await checkAndUpdateComics();
+        let pushConfig = Config.getConfig().push_list;
+        let currentComicList = Config.getComicList();
+        let pushComic = currentComicList[0];
+        await pushComics([pushComic], pushConfig);
+        Log.i('已推送：' + pushComic.title);
     }
 }
