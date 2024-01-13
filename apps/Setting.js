@@ -99,6 +99,10 @@ export class Setting extends plugin {
     }
 
     async send_pic(e) {
+        if (!e.isMaster) {
+            e.reply('臭萝莉控滚开啊！变态！！');
+            return true;
+        }
         const isOpening = e.msg.includes('开启');
         let config = Config.getConfig();
         if (isOpening) {
