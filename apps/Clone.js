@@ -26,7 +26,7 @@ export class Clone extends Plugin {
 
     const repositoryPath = `${pluginRoot}/exlolicomic`;
     if (this.isRepositoryCloned(repositoryPath)) {
-      await e.reply('数据库已存在，插件已经准备好推送啦');
+      await e.reply('数据库已存在，插件已经准备好推送啦！sensei准备好了吗？');
     } else {
       await this.cloneRepository(e, repositoryPath);
     }
@@ -43,16 +43,16 @@ export class Clone extends Plugin {
   }
 
   async cloneRepository(e, repositoryPath) {
-    await e.reply('正在尝试克隆数据库，请稍后');
+    await e.reply('正在尝试克隆数据库，变态sensei别着急~');
     const git = simpleGit();
     try {
       const GITHUB_TOKEN = Config.getConfig().lolicon_token
       const GITHUB_USERNAME = 'erzaozi';
       await git.clone(`https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@mirror.ghproxy.com/https://github.com/erzaozi/exlolicomic.git`, repositoryPath);
-      await e.reply('克隆成功，插件已经准备好推送啦');
+      await e.reply('克隆成功，插件已经准备好推送啦！sensei注意身体哦！');
     } catch (err) {
       Log.e(err);
-      await e.reply('克隆失败，请检查网络或更新插件');
+      await e.reply('克隆失败，肯定不是插件的问题！请检查网络或更新插件再试试吧~');
     }
   }
 }

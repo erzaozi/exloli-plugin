@@ -101,7 +101,11 @@ export class Push extends plugin {
         });
     }
 
-    async push() {
+    async push(e) {
+        if (!e.isMaster) {
+            e.reply('臭萝莉控滚开啊！变态！！');
+            return true;
+        }
         let pushConfig = Config.getConfig().push_list;
         let currentComicList = Config.getComicList();
         let pushComic = currentComicList[0];
