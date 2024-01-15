@@ -48,7 +48,7 @@ export class Setting extends plugin {
 
         const isGroupMessage = !!e.group_id;
         const list = isGroupMessage ? config.push_list.group : config.push_list.user;
-        const id = isGroupMessage ? e.group_id : e.user_id;
+        const id = isGroupMessage ? `${e.self_id}:${e.group_id}` : `${e.self_id}:${e.user_id}`;
         const isOpening = e.msg.includes('开启');
 
         if (isOpening) {
