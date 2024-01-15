@@ -14,7 +14,7 @@ async function mergeForward(picList) {
 
     async function fetchAndConvertImage(url, retries = 3) {
         try {
-            const response = await fetch(url + '?dl=1');
+            const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const buffer = await response.buffer();
             return isSendBase64 ? `base64://${buffer.toString('base64')}` : url;
