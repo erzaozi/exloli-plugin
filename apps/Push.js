@@ -13,27 +13,32 @@ async function mergeForward(picList) {
     const isSendBase64 = Config.getConfig().send_base64;
 
     async function fetchAndConvertImage(url, retries = 3) {
+        if (!isSendBase64) return url;
+
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'Referer': 'https://postimg.cc/'
+                }
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const buffer = await response.buffer();
-            return isSendBase64 ? `base64://${buffer.toString('base64')}` : url;
+            return `base64://${buffer.toString('base64')}`;
         } catch (error) {
             if (retries > 0) return fetchAndConvertImage(url, retries - 1);
             throw error;
         }
     }
 
-    const messages = await Promise.all(picList.map(pic => 
+    const messages = await Promise.all(picList.map(pic =>
         fetchAndConvertImage(pic).then(image => ({
-            user_id: Bot.uin,
-            nickname: Bot.nickname,
             message: segment.image(image)
         }))
     ));
 
     return messages;
 }
+
 
 // 推送漫画函数
 async function pushComics(comicDifferences, pushConfig) {
@@ -46,7 +51,7 @@ async function pushComics(comicDifferences, pushConfig) {
             try {
                 await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
                 if (Config.getConfig().push_pic) {
-                    await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendForwardMsg(await mergeForward(comic.pages_url));
+                    await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
             } catch (error) {
                 Log.e(error);
@@ -58,7 +63,7 @@ async function pushComics(comicDifferences, pushConfig) {
             try {
                 await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
                 if (Config.getConfig().push_pic) {
-                    await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendForwardMsg(await mergeForward(comic.pages_url));
+                    await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
             } catch (error) {
                 Log.e(error);
