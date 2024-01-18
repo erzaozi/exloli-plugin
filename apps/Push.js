@@ -9,27 +9,27 @@ import Log from '../utils/logs.js';
 import fetch from 'node-fetch';
 import plugin from '../../../lib/plugins/plugin.js';
 
-async function mergeForward(picList) {
+async function fetchAndConvertImage(url, retries = 3) {
     const isSendBase64 = Config.getConfig().send_base64;
 
-    async function fetchAndConvertImage(url, retries = 3) {
-        if (!isSendBase64) return url;
+    if (!isSendBase64) return url;
 
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Referer': 'https://postimg.cc/'
-                }
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const buffer = await response.buffer();
-            return `base64://${buffer.toString('base64')}`;
-        } catch (error) {
-            if (retries > 0) return fetchAndConvertImage(url, retries - 1);
-            throw error;
-        }
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Referer': 'https://postimg.cc/'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const buffer = await response.buffer();
+        return `base64://${buffer.toString('base64')}`;
+    } catch (error) {
+        if (retries > 0) return fetchAndConvertImage(url, retries - 1);
+        throw error;
     }
+}
 
+async function mergeForward(picList) {
     const messages = await Promise.all(picList.map(pic =>
         fetchAndConvertImage(pic).then(image => ({
             message: segment.image(image)
@@ -38,7 +38,6 @@ async function mergeForward(picList) {
 
     return messages;
 }
-
 
 // 推送漫画函数
 async function pushComics(comicDifferences, pushConfig) {
@@ -49,7 +48,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to users
         userList.forEach(async user => {
             try {
-                await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
                 if (Config.getConfig().push_pic) {
                     await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
@@ -61,7 +60,7 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to groups
         groupList.forEach(async group => {
             try {
-                await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(comic.cover), comicMessage]);
+                await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
                 if (Config.getConfig().push_pic) {
                     await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
