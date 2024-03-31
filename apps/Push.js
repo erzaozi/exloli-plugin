@@ -15,11 +15,11 @@ async function fetchAndConvertImage(url, retries = 3) {
     if (!isSendBase64) return url;
 
     try {
-        const response = await fetch(url, {
+        const response = Buffer.from(await (await fetch(url, {
             headers: {
                 'Referer': 'https://postimg.cc/'
             }
-        });
+        })).arrayBuffer());
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const buffer = await response.buffer();
         return `base64://${buffer.toString('base64')}`;
