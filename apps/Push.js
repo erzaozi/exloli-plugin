@@ -118,7 +118,7 @@ export class Push extends plugin {
             event: 'message',
             priority: 1009,
             rule: [{
-                reg: '^#?exloli推送$',
+                reg: '^#?exloli推送([1-9][0-9]*)?$',
                 fnc: 'push'
             }]
         });
@@ -129,9 +129,11 @@ export class Push extends plugin {
             e.reply('臭萝莉控滚开啊！变态！！');
             return true;
         }
+        const reg = e.msg.match(/推送([1-9][0-9]*)/)
+        const seqNumber = reg ? reg[1] : 1
         let pushConfig = Config.getConfig().push_list;
         let currentComicList = Config.getComicList();
-        let pushComic = currentComicList[0];
+        let pushComic = currentComicList[seqNumber-1];
         await pushComics([pushComic], pushConfig);
         Log.i('已推送：' + pushComic.title);
     }

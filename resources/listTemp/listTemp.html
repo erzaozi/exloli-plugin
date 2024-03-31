@@ -4,11 +4,11 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <link rel="shortcut icon" href="#" />
     <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{pluginResources}}/listTemp/listTemp.css"
-    />
-    <link rel="preload" href="{{resPath}}/font/tttgbnumber.ttf" as="font" />
+    rel="stylesheet"
+    type="text/css"
+    href="{{_path}}/plugins/exloli-plugin/resources/listTemp/listTemp.css"
+  />
+  <link rel="preload" href="{{_path}}/plugins/exloli-plugin/resource/common/font/tttgbnumber.ttf" as="font" />
   </head>
 
   <body id="container" class="body_box">
@@ -21,22 +21,16 @@
         <div class="data_box">
           <div class="tab-lable">{{sidebar}}</div>
         </div>
-        {{each modelsGroup models}}
+        {{each column comicList}}
         <div class="model_list">
           <div class="avatar th">
             <div class="index">#</div>
             <div class="model-name">{{list1}}</div>
-            <div class="example">{{list2}}</div>
           </div>
-          {{each models model idx}}
-          <div class="avatar {{model.able}}">
-            <div class="index">{{idx+1}}</div>
-            {{if header === "Midjourney 设置"}}
-            <div class="model-name" style="width:260px">{{model.list1}}</div>
-            {{else}}
-            <div class="model-name">{{model.list1}}</div>
-            {{/if}}
-            <div class="example">{{model.list2}}</div>
+          {{each comicList comic idx}}
+          <div class="avatar">
+            <div class="index">{{seqNumber+idx+1}}</div>
+            <div class="model-name">{{comic.list1}}</div>
           </div>
           {{/each}}
         </div>
@@ -45,7 +39,7 @@
         <div class="data_box2" style="padding-top: 5px">
           <p class="notice" style="padding-top: 5px">{{notice}}</p>
         </div>
-        <div class="logo">Created By Yunzai-Bot & MJ-Plugin</div>
+        <div class="logo">Created By Yunzai-Bot & EXloli-Plugin</div>
       </div>
     </div>
   </body>
