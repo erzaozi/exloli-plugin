@@ -55,8 +55,8 @@ export class Help extends plugin {
           },
           {
             icon: 3,
-            title: '#exloli推送',
-            desc: '立即向设置的群和好友推送最新的那本漫画'
+            title: '#exloli推送(114)',
+            desc: '立即向设置的群和好友推送那本漫画默认最新'
           }
         ]
       },
@@ -75,6 +75,11 @@ export class Help extends plugin {
           },
           {
             icon: 6,
+            title: '#exloli开启发送漫画',
+            desc: '里站更新是否推送漫画内容'
+          },
+          {
+            icon: 7,
             title: '#exloli更新',
             desc: '更新ExLOLI插件'
           },
