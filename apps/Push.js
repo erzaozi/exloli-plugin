@@ -48,9 +48,9 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to users
         userList.forEach(async user => {
             try {
-                await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
+                await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
                 if (Config.getConfig().push_pic) {
-                    await Bot[user.split(':')[0]].pickUser(user.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
+                    await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
             } catch (error) {
                 Log.e(error);
@@ -60,9 +60,9 @@ async function pushComics(comicDifferences, pushConfig) {
         // Push to groups
         groupList.forEach(async group => {
             try {
-                await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
+                await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendMsg(["ExLOLI-PLUGIN 每日萝莉本子\n\n", segment.image(await fetchAndConvertImage(comic.cover)), comicMessage]);
                 if (Config.getConfig().push_pic) {
-                    await Bot[group.split(':')[0]].pickGroup(group.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
+                    await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendMsg(Bot.makeForwardMsg(await mergeForward(comic.pages_url)));
                 }
             } catch (error) {
                 Log.e(error);
