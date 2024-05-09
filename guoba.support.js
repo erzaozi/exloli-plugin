@@ -7,16 +7,17 @@ export function supportGuoba() {
     return {
         pluginInfo: {
             name: 'exloli-plugin',
-            title: 'exloli-plugin',
+            title: '萝莉漫画插件',
             author: ['@CikeyQi', '@erzaozi'],
             authorLink: ['https://github.com/CikeyQi', 'https://github.com/erzaozi'],
             link: 'https://github.com/erzaozi/exloli-plugin',
             isV3: true,
             isV2: false,
-            description: '基于Yunzai-Bot的exloli本子推送插件',
+            showInMenu: true,
+            description: '基于 Yunzai 的萝莉漫画推送插件',
             // 显示图标，此为个性化配置
             // 图标可在 https://icon-sets.iconify.design 这里进行搜索
-            icon: 'mdi:stove',
+            icon: 'noto:panda',
             // 图标颜色，例：#FF0000 或 rgb(255, 0, 0)
             iconColor: '#d19f56',
             // 如果想要显示成图片，也可以填写图标路径（绝对路径）
