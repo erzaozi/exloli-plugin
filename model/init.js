@@ -1,7 +1,8 @@
 import fs from 'fs'
 import Config from '../components/Config.js'
 import { pluginRoot } from '../model/path.js'
-import Log from '../utils/logs.js'
+import { timeToString } from '../utils/timer.js'
+import getTransDb from '../components/translate.js'
 
 class Init {
   constructor() {
@@ -11,12 +12,12 @@ class Init {
   initConfig() {
     const config_default_path = `${pluginRoot}/config/config_default.yaml`
     if (!fs.existsSync(config_default_path)) {
-      Log.e('默认设置文件不存在，请检查或重新安装插件')
+      logger.error('默认设置文件不存在，请检查或重新安装插件')
       return true
     }
     const config_path = `${pluginRoot}/config/config/config.yaml`
     if (!fs.existsSync(config_path)) {
-      Log.e('设置文件不存在，将使用默认设置文件')
+      logger.error('设置文件不存在，将使用默认设置文件')
       fs.copyFileSync(config_default_path, config_path)
     }
     const config_default_yaml = Config.getDefConfig()
@@ -31,6 +32,10 @@ class Init {
         delete config_yaml[key]
       }
     }
+    if (!config_yaml.last_time) {
+      config_yaml.last_time = timeToString(new Date().getTime())
+    }
+    getTransDb()
     Config.setConfig(config_yaml)
   }
 

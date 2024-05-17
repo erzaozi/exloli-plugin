@@ -1,6 +1,43 @@
 push_list:
   user: []
   group: []
-lolicon_token: ''
 push_pic: false
 send_base64: true
+# 是否保存本地
+local_save: false
+# ex账户
+ex_account:
+  ipb_member_id: ''
+  ipb_pass_hash: ''
+  igneous: ''
+  sk: ''
+# 过滤标签
+category: 
+  Doujinshi: false
+  Manga: false
+  Artist CG: false
+  Game CG: false
+  Western: false
+  Non-H: true
+  Image Set: false
+  Cosplay: false
+  Asian Porn: false
+  Misc: false
+# 搜索参数
+search_param:
+  - loli
+  - Non-H
+# 最大页码
+max_pages: 50
+# 最低星级
+f_srdd: 4
+# 是否里站
+isEx: false
+proxy:
+  enable: false
+  host: 127.0.0.1
+  port: 7890
+# 上次检查更新时间
+last_time: 0
+# 数据库版本
+translate_db_version: null

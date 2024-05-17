@@ -1,7 +1,6 @@
 import plugin from '../../../lib/plugins/plugin.js'
 import _ from 'lodash'
 import fs from 'fs'
-import Log from '../utils/logs.js'
 import { pluginRoot } from '../model/path.js'
 import Version from '../components/Version.js'
 import Init from '../model/init.js'
@@ -222,7 +221,7 @@ export class Help extends plugin {
         currentVersion = package_json.version
       }
     } catch (err) {
-      Log.e('读取package.json失败', err)
+      logger.error('读取package.json失败', err)
     }
     return e.runtime.render('exloli-plugin', path, params, {
       retType: cfg.retMsgId ? 'msgId' : 'default',
