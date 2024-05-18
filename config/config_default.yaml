@@ -2,7 +2,6 @@ push_list:
   user: []
   group: []
 push_pic: false
-send_base64: true
 # 是否保存本地
 local_save: false
 # ex账户
@@ -29,8 +28,6 @@ search_param:
   - Non-H
 # 最大页码
 max_pages: 50
-# 最低星级
-f_srdd: 4
 # 是否里站
 isEx: false
 proxy:

@@ -11,7 +11,8 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
     "node-fetch": "^3.3.2",
-    "formdata-polyfill": "^4.0.10"
+    "formdata-polyfill": "^4.0.10",
+    "sharp": "^0.33.4"
   },
   "keywords": [
     "Yunzai-Bot",
@@ -21,5 +22,5 @@
     "exhentai"
   ],
   "author": "@erzaozi",
-  "license": "ISC"
+  "license": "AGPL-3.0"
 }

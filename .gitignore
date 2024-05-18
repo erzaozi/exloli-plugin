@@ -1,3 +1,4 @@
 node_modules/
-exlolicomic/
 config/config/*.yaml
+resources/comics
+resources/translate

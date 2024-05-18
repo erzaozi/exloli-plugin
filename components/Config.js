@@ -10,7 +10,7 @@ class Config {
       )
       return config_data
     } catch (err) {
-      Log.e('读取config.yaml失败', err)
+      logger.error('读取config.yaml失败', err)
       return false
     }
   }
@@ -22,7 +22,7 @@ class Config {
       )
       return config_default_data
     } catch (err) {
-      Log.e('读取config_default.yaml失败', err)
+      logger.error('读取config_default.yaml失败', err)
       return false
     }
   }
@@ -35,19 +35,7 @@ class Config {
       )
       return true
     } catch (err) {
-      Log.e('写入config.yaml失败', err)
-      return false
-    }
-  }
-
-  getComicList() {
-    try {
-      const comic_list_data = YAML.parse(
-        fs.readFileSync(`${pluginRoot}/exlolicomic/db.lolicon.yaml`, 'utf-8')
-      )
-      return comic_list_data
-    } catch (err) {
-      Log.e('读取db.lolicon.yaml失败', err)
+      logger.error('写入config.yaml失败', err)
       return false
     }
   }

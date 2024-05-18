@@ -16,6 +16,9 @@ async function updateTransDb() {
         let proxy = 'http://' + config.proxy.host + ':' + config.proxy.port
         agent = new HttpsProxyAgent(proxy)
     }
+    if (!fs.existsSync(`${pluginResources}/translate`)) {
+        fs.mkdirSync(`${pluginResources}/translate`)
+    }
     try {
         let latestVersion = (await (await fetch('https://api.github.com/repos/EhTagTranslation/Database/releases', { agent })).json())[0].tag_name
         if (config.translate_db_version !== latestVersion) {

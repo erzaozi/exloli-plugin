@@ -4,14 +4,14 @@
 
 <img decoding="async" align=right src="resources/readme/girl.png" width="35%">
 
-- 一个基于 [Yunzai 系列机器人框架](https://github.com/yhArcadia/Yunzai-Bot-plugins-index) 的萝莉本子推送插件，从 E 站里站实时同步更新并下载漫画并上传发送到任何地方
+- 一个基于 [Yunzai 系列机器人框架](https://github.com/yhArcadia/Yunzai-Bot-plugins-index) 的 E 站本子推送插件，从 E 站里站实时同步更新并下载漫画并上传发送到任何地方
 
-- 采用前后端分离架构服务端自动同步更新，无需配置里站账号，无需访问里站网络要求，只需填写数据库 Token
+- 可自定义搜索内容，标签，需要配置 E 站账号
 
 - **使用中遇到问题请加 QQ 群咨询：[707331865](https://qm.qq.com/q/TXTIS9KhO2)**
 
 > [!TIP]
-> 考虑到开发团队账号风险，该项目是该账号下首发的开源项目，后端数据库更新与上传为 [CikeyQi](https://github.com/CikeyQi) 与作者共同开发，此外她还承担了本插件端大部分功能实现，并由本人完善了一部分小功能。
+> 考虑到开发团队账号风险，该项目是该账号下首发的开源项目，由于第一版采用前后端分离结构，后端采用的图床被狠狠制裁了（悲），现如今考虑到一些用户有自定义搜索内容的需求，故将爬取逻辑重构，并发布了第二代版本，插件为 [CikeyQi](https://github.com/CikeyQi) 与作者共同开发，当前已实现推送功能，后续将提供搜索历史漫画功能。
 
 ## 安装插件
 
@@ -46,21 +46,19 @@ pnpm install --filter=exloli-plugin
 
 ## 插件配置
 
-<details> <summary>如何获取Token</summary>
+<details> <summary>如何获取Cookie</summary>
 
 - 本插件功能是不符合中国大陆规定的，我们非常不建议你在国内平台使用，你可以使用 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 将其使用在 `Discord` 等国外平台
 
-- 安装好插件后，请向群 **[707331865](https://qm.qq.com/q/TXTIS9KhO2)** 内的管理员 **二喵子** 获取数据库 Token，我们不会为 Token 索取任何费用
+- 登录 [表站](https://forums.e-hentai.org/)，第一行中如果出现 **Welcome Guest ( Log In | Register )**，说明你还未登录，如果已有账号则选择 **Log In**, 如还未注册则选择**Register**
+- 登录成功后打开控制台输入
 
-</details>
+```javascript
+copy(document.cookie)
+console.log('Cookie已复制到剪切板')
+```
 
-<details> <summary>Token如何使用</summary>
-
-- 使用 `#exloli设置token` 填入数据库 Token 后，首次使用必须发送 `#exloli克隆` 将数据库更新同步到本地
-
-- 在你想开启推送的群或私聊发送 `#exloli开启推送` 即可开启推送，使用 `#exloli关闭推送` 即可关闭推送
-
-- 你可以使用 `#exloli推送` 测试推送是否正常，使用该命令将会立即向设置好的群和私聊推送一个本子
+- 在 cookie 中找到需要的字段，使用锅巴插件后台登录填写
 
 </details>
 
@@ -69,8 +67,8 @@ pnpm install --filter=exloli-plugin
 请使用 `#exloli帮助` 获取完整帮助
 
 - [x] 实时推送更新
-- [x] 推送本子内容
-- [x] 获取历史本子
+- [x] 自定义漫画标签
+- [x] 自定义搜索内容
 
 ## 常见问题
 
@@ -79,6 +77,10 @@ pnpm install --filter=exloli-plugin
    - 日志中会即刻显示推送完成，本子内容将陆续推送至指定群聊。
 2. 为什么我配置过了推送，之前能推送现在不能？
    - 在更换了机器人账号后需要再次配置。
+3. 账号配置是否应该全部填写
+   - 无论是表站还是里站都必填 ipb_member_id、ipb_pass_hash、sk，此外里站必须配置 igneous
+4. 为什么我的账号没有 igneous（igneous 如何获取）
+   - 当你使用原生 ip 注册表站后，等待半个月将自动获得里站资格，当登录里站时将会看到 igneous，如果仍未获得可能是 ip 有问题，~~（图省事的话你可以考虑买一个账号）~~。
 
 ## 支持与贡献
 

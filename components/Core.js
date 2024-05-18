@@ -1,4 +1,5 @@
 import Config from "./Config.js"
+import storeComic from "../utils/store.js"
 import getTransDb from "./translate.js"
 import fetch from "node-fetch"
 import cheerio from "cheerio"
@@ -86,17 +87,19 @@ export default new class ExClient {
         if (response.status === 200) {
             const body = await response.text()
             const $ = cheerio.load(body)
-            const comics = $('table.itg.gltc').children('tbody').children('tr')
-            comics.each((index, comic) => {
-                const $comic = $(comic)
-                const link = $comic.find('td.gl3c.glname a').attr('href')
-                const cover = $comic.find('td.gl2c img').attr('src')
-                const title = $comic.find('td.gl3c.glname a div.glink').text()
-                const uploader = $comic.find('td.gl4c.glhide div a').text()
-                const pages = $comic.find('td.gl4c.glhide div a').parent().next().text()
-                const posted = $comic.find('td.gl2c').eq(1).text()
-                const timestamp = stringToTime(posted)
-                page.comicList.push({ link, cover, title, uploader, pages, posted, timestamp })
+            const $comics = $('table.itg.gltc').children('tbody').children('tr')
+            $comics.each((index, comic) => {
+                if (index > 0) {
+                    const $comic = $(comic)
+                    const link = $comic.find('td.gl3c.glname a').attr('href')
+                    const cover = $comic.find('td.gl2c img').attr('src')
+                    const title = $comic.find('td.gl3c.glname a div.glink').text()
+                    const uploader = $comic.find('td.gl4c.glhide div a').text()
+                    const pages = Number($comic.find('td.gl4c.glhide div a').parent().next().text().slice(0, -5))
+                    const posted = $comic.find('div[id^="posted_"]').text()
+                    const timestamp = stringToTime(posted)
+                    page.comicList.push({ link, cover, title, uploader, pages, posted, timestamp })
+                }
             })
             const first = $('a#dfirst').attr('href')
             const prev = $('a#dprev').attr('href')
@@ -109,26 +112,90 @@ export default new class ExClient {
 
     comicsFilter(comicList) {
         const config = Config.getConfig()
-        logger.warn(comicList)
-        const filtedComicList = comicList.filter(comic => (comic.timestamp > stringToTime(config.last_time)) && (comic.pages && comic.pages < config.max_pages))
+        const filtedComicList = comicList.filter(comic => (comic.timestamp > stringToTime(config.last_time) - 14400000) && (comic.pages && comic.pages < config.max_pages))
         config.last_time = timeToString(new Date().getTime())
         Config.setConfig(config)
         return filtedComicList
     }
 
-    comicTranslater(comics) {
-        const db = getTransDb()
-        function translator(comic) {
-
+    async requestComics(oldComicList) {
+        let agent = null
+        if (Config.getConfig().proxy.enable) {
+            let proxy = 'http://' + Config.getConfig().proxy.host + ':' + Config.getConfig().proxy.port
+            agent = new HttpsProxyAgent(proxy)
         }
-        if (Array.isArray(comics)) {
-            return comics.map((comic) => translator(comic))
-        } else {
-            return translator(comics)
+        const headers = this.header
+        async function getMoreInfo(comic) {
+            const response = await fetch(comic.link, { headers, agent })
+            const body = await response.text()
+            const $ = cheerio.load(body)
+            const $comic = $("div#gdd table").children("tbody").children("tr")
+            comic.language = $comic.find("td.gdt1").filter((index, element) => $(element).text() === "Language:").next().text()
+            comic.favorite = $comic.find("td.gdt1").filter((index, element) => $(element).text() === "Favorited:").next().text()
+            comic.firstPage = $("div#gdt div.gdtm div a").attr("href")
+            comic.tags = {}
+            const $tagList = $("div#taglist table").children("tbody").children("tr")
+            $tagList.each((index, element) => {
+                let key = $(element).find('td.tc').text().slice(0, -1)
+                let values = $(element).find('td>div>a').map((i, ele) => $(ele).text()).get()
+                comic.tags[key] = values
+            })
+            return comic
         }
+        async function downloadPicture(picturePage, picSaverOnce, retry = 5) {
+            const response = await fetch(picturePage, { headers, agent })
+            const body = await response.text()
+            const $ = cheerio.load(body)
+            const picUrl = $("img#img").attr("src")
+            const nextPage = $("a#next").attr("href")
+            try {
+                const pic = await fetch(picUrl)
+                if (!pic.ok) {
+                    throw new Error()
+                }
+                picSaverOnce(pic.body)
+                return nextPage
+            } catch (error) {
+                logger.error(`[Exloli-Plugin]下载图片失败，还剩余${retry--}次重试`)
+                logger.error(error)
+                if (retry > 0) {
+                    return downloadPicture(picturePage, picSaverOnce, retry)
+                } else return nextPage
+            }
+        }
+        let comicsWithMoreInfo = (await Promise.allSettled(oldComicList.map(async (comic) => await getMoreInfo(comic)))).map(ele => ele.value)
+        logger.warn(comicsWithMoreInfo)
+        comicsWithMoreInfo = await this.comicTranslator(comicsWithMoreInfo)
+        for (let comic of comicsWithMoreInfo) {
+            comic.dirName = comic.title.replace(/[<>:"/\\|?*]+/g, '')
+            let picSaver = storeComic(comic)
+            let index = 0
+            let nextPage, currentPage
+            nextPage = currentPage = comic.firstPage
+            do {
+                currentPage = nextPage
+                const picSaverOnce = async (pic) => await picSaver(pic, index)
+                nextPage = await downloadPicture(nextPage, picSaverOnce)
+                index++
+            } while (nextPage !== currentPage)
+        }
+        return comicsWithMoreInfo
     }
 
-    requestComic(url) {
-
+    async comicTranslator(comicList) {
+        const db = await getTransDb()
+        function translator(comic) {
+            let translatedTags = {}
+            for (let tag in comic.tags) {
+                let category = db.data.find(category => category.namespace === tag)
+                translatedTags[category.frontMatters.name] = []
+                comic.tags[tag].map(label => {
+                    translatedTags[category.frontMatters.name].push(category.data[label]?.name || label)
+                })
+            }
+            comic.tags = translatedTags
+            return comic
+        }
+        return comicList.map(comic => translator(comic))
     }
 }

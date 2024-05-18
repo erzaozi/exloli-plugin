@@ -54,24 +54,14 @@ export class Help extends plugin {
           },
           {
             icon: 3,
-            title: '#exloli推送(114)',
-            desc: '立即向设置的群和好友推送那本漫画默认最新'
+            title: '#exloli推送',
+            desc: '立即向设置的群和好友推送漫画默认最新'
           }
         ]
       },
       {
         group: 'ExLOLI-设置',
         list: [
-          {
-            icon: 4,
-            title: '#exloli设置token<token>',
-            desc: '设置数据库公钥，用于克隆与拉取数据库'
-          },
-          {
-            icon: 5,
-            title: '#exloli克隆',
-            desc: '克隆云端最新的数据库'
-          },
           {
             icon: 6,
             title: '#exloli开启发送漫画',
