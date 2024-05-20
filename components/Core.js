@@ -25,12 +25,7 @@ const BASE_E_URL = 'https://e-hentai.org/?'
 
 export default new class ExClient {
     constructor() {
-        let cookie = {
-            sl: 'dm_2',
-            ...Config.getConfig().ex_account
-        }
-        const cookieStr = Object.entries(cookie).map(([k, v]) => `${k}=${v}`).join(';')
-        this.header = {
+        this.headerWithoutCookie = {
             'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Connection': 'keep-alive',
@@ -41,9 +36,17 @@ export default new class ExClient {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
             'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'Cookie': cookieStr
+            'sec-ch-ua-platform': '"Windows"'
         }
+    }
+
+    get header() {
+        const cookie = {
+            sl: 'dm_2',
+            ...Config.getConfig().ex_account
+        }
+        const cookieStr = Object.entries(cookie).map(([k, v]) => `${k}=${v}`).join(';')
+        return { ...this.headerWithoutCookie, "Cookie": cookieStr }
     }
 
     calCats(category) {
@@ -56,7 +59,7 @@ export default new class ExClient {
         return number
     }
 
-    parseParam(param) {
+    handleParam(param) {
         if (param.type === 'next') {
             return param.next
         } else if (param.type === 'last') {
@@ -67,12 +70,13 @@ export default new class ExClient {
             return param.first
         } else {
             let form = new FormData()
-            const { category, search_param, f_srdd } = Config.getConfig()
-            form.append('f_search', search_param.join(','))
+            const { category, search_param, f_srdd, isEx } = Config.getConfig()
+            const mergeParam = { category, search_param, f_srdd, isEx, ...param }
+            form.append('f_search', mergeParam.search_param.join(','))
             form.append('advsearch', 1)
-            form.append('f_srdd', f_srdd)
-            form.append('f_cats', this.calCats(category))
-            return (Config.getConfig().isEx ? BASE_EX_URL : BASE_E_URL) + new URLSearchParams(form).toString()
+            form.append('f_srdd', mergeParam.f_srdd)
+            form.append('f_cats', this.calCats(mergeParam.category))
+            return (isEx ? BASE_EX_URL : BASE_E_URL) + new URLSearchParams(form).toString()
         }
     }
 
@@ -112,8 +116,8 @@ export default new class ExClient {
 
     comicsFilter(comicList) {
         const config = Config.getConfig()
-        const filtedComicList = comicList.filter(comic => (comic.timestamp > stringToTime(config.last_time) - 14400000) && (comic.pages && comic.pages < config.max_pages))
-        config.last_time = timeToString(new Date().getTime())
+        const filtedComicList = comicList.filter(comic => (comic.timestamp > stringToTime(config.last_time)) && (comic.pages && comic.pages < config.max_pages))
+        config.last_time = timeToString(comicList[0].posted)
         Config.setConfig(config)
         return filtedComicList
     }
@@ -142,7 +146,7 @@ export default new class ExClient {
             })
             return comic
         }
-        async function downloadPicture(picturePage, picSaverOnce, retry = 5) {
+        async function downloadPicture(picturePage, picSaverOnce, retry = 3) {
             const response = await fetch(picturePage, { headers, agent })
             const body = await response.text()
             const $ = cheerio.load(body)
@@ -164,7 +168,6 @@ export default new class ExClient {
             }
         }
         let comicsWithMoreInfo = (await Promise.allSettled(oldComicList.map(async (comic) => await getMoreInfo(comic)))).map(ele => ele.value)
-        logger.warn(comicsWithMoreInfo)
         comicsWithMoreInfo = await this.comicTranslator(comicsWithMoreInfo)
         for (let comic of comicsWithMoreInfo) {
             comic.dirName = comic.title.replace(/[<>:"/\\|?*]+/g, '')

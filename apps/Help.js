@@ -40,7 +40,7 @@ export class Help extends plugin {
     }
     const helpList = [
       {
-        group: 'ExLOLI-推送',
+        group: 'ExLOLI-推送相关',
         list: [
           {
             icon: 1,
@@ -55,12 +55,58 @@ export class Help extends plugin {
           {
             icon: 3,
             title: '#exloli推送',
-            desc: '立即向设置的群和好友推送漫画默认最新'
-          }
+            desc: '立即向设置的群和好友推送漫画默认最新,可配合搜索使用'
+          },
+          {
+            icon: 5,
+            title: '#exloli搜索',
+            desc: '在E站搜索想看的漫画'
+          },
+          {
+            icon: 4,
+            title: '#exloli查看推送标签',
+            desc: '查看自动推送使用的标签'
+          },
+          {
+            icon: 7,
+            title: '#exloli开启推送标签1',
+            desc: '使用序号开启|关闭搜索标签'
+          },
+          {
+            icon: 11,
+            title: '#exloli设置推送关键词neko',
+            desc: '推送时过滤相关内容'
+          },
+          {
+            icon: 12,
+            title: '#exloli设置设置最低星级2',
+            desc: '过滤星级低于此的内容'
+          },
+          {
+            icon: 13,
+            title: '#exloli设置最大页码',
+            desc: '过滤页码数高于此的内容'
+          },
+          {
+            icon: 14,
+            title: '#exloli设置(表|里)站',
+            desc: '使用的推送站点'
+          },
+          {
+            icon: 15,
+            title: '#exloli开启代理',
+            desc: '被拉黑IP或IP点数耗尽可使用代理'
+          },
+          {
+            icon: 16,
+            title: '#exloli设置代理地址127.0.0.1:7890',
+            desc: '设置代理地址'
+          },
+
         ]
       },
       {
-        group: 'ExLOLI-设置',
+        group: 'ExLOLI-插件设置',
         list: [
           {
             icon: 6,
@@ -68,10 +114,20 @@ export class Help extends plugin {
             desc: '里站更新是否推送漫画内容'
           },
           {
-            icon: 7,
+            icon: 8,
+            title: '#exloli开启保存漫画',
+            desc: '发送漫画时是否保存漫画'
+          },
+          {
+            icon: 9,
+            title: '#?exloli设置(sk|id|hash|igneous)',
+            desc: '设置里站cookie'
+          },
+          {
+            icon: 10,
             title: '#exloli更新',
             desc: '更新ExLOLI插件'
-          },
+          }
         ]
       }
     ]

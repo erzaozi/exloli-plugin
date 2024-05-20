@@ -176,7 +176,7 @@ export function supportGuoba() {
                 {
                     field: "category.Cosplay",
                     label: "Coser",
-                    bottomHelpMessage: "推送图集内容",
+                    bottomHelpMessage: "推送Coser内容",
                     component: "Switch",
                 },
                 {
@@ -210,6 +210,18 @@ export function supportGuoba() {
                     label: "里站设置",
                     bottomHelpMessage: "开启后将使用里站，请确保你的账号token全部填写",
                     component: "Switch",
+                },
+                {
+                    field: "f_srdd",
+                    label: "最低评分",
+                    bottomHelpMessage: "评分低于此的内容将不会被推送",
+                    component: "InputNumber",
+                    componentProps: {
+                        placeholder: '请输入最低评分',
+                        min: 0,
+                        max: 5,
+                        step: 1,
+                    },
                 },
                 {
                     field: "max_pages",

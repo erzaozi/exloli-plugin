@@ -16,13 +16,13 @@ export class Push extends plugin {
             event: 'message',
             priority: 1009,
             rule: [{
-                reg: '^#?exloli推送$',
+                reg: '^#?exloli推送(\\d+)?$',
                 fnc: 'push'
             }]
-        });
+        })
         this.task = {
             name: '[Exloli-Plugin]自动推送',
-            fnc: () => this.push({ isTask: true }),
+            fnc: () => this.push({ isTask: true, msg: "exloli推送" }),
             cron: '*/5 * * * *',
             log: true
         }
@@ -30,25 +30,34 @@ export class Push extends plugin {
 
     async push(e) {
         if (!e.isTask && !e.isMaster) {
-            e.reply('臭萝莉控滚开啊！变态！！');
-            return true;
+            e.reply('臭萝莉控滚开啊！变态！！')
+            return true
         }
-
-        let page = await ExClient.requestPage(ExClient.parseParam({}))
-        if (e.isTask) {
-            page.comicList = ExClient.comicsFilter(page.comicList)
-            if (page.comicList.length === 0) {
-                logger.info("[Exloli-Plugin] 未发现新的漫画")
-                return
+        let index = e.msg.match(/\d+$/)?.[0]
+        index = index - 1
+        let page
+        if (!index) {
+            page = await ExClient.requestPage(ExClient.handleParam({}))
+            if (e.isTask) {
+                page.comicList = ExClient.comicsFilter(page.comicList)
+                if (page.comicList.length === 0) {
+                    logger.info("[Exloli-Plugin] 未发现新的漫画")
+                    return
+                }
+                else {
+                    logger.info(`[Exloli-Plugin] 发现新的漫画:${page.comicList.map(comic => comic.title).join("\n")}`)
+                    page.comicList = await ExClient.requestComics(page.comicList)
+                }
             }
             else {
-                logger.info(`[Exloli-Plugin] 发现新的漫画:${page.comicList.map(comic => comic.title).join(",")}`)
-                page.comicList = await ExClient.requestComics(page.comicList)
+                page.comicList = [page.comicList.find(comic => comic.pages < Config.getConfig().max_pages)]
+                page.comicList = await ExClient.requestComics([page.comicList[0]])
             }
-        }
-        else {
-            page.comicList = [page.comicList.find(comic => comic.pages < Config.getConfig().max_pages)]
-            page.comicList = await ExClient.requestComics([page.comicList[0]])
+        } else {
+            page = JSON.parse(await redis.get(`Yz:Exloli-plugin:${this.e.user_id}`))
+            if (!page) return e.reply("你上次还未搜索过内容哦~")
+            if (index < 0 || index >= page.comicList) return e.reply("输入的页码范围有误~")
+            page.comicList = await ExClient.requestComics([page.comicList[index]])
         }
         await this.pusher(page.comicList)
         if (!Config.getConfig().local_save) {
