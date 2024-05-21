@@ -156,3 +156,8 @@ body {
   text-align: center;
   padding: 12px 5px 5px;
 }
+
+#cover {
+  height: 50px;
+  object-fit: cover;
+}

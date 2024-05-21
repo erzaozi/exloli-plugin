@@ -1,9 +1,9 @@
 import fs from "fs"
-import _ from 'lodash'
 import ExClient from '../components/Core.js'
 import plugin from '../../../lib/plugins/plugin.js'
 import Config from '../components/Config.js'
 import sharp from "sharp"
+import path from "path"
 import { deleteComic } from '../utils/store.js'
 import { pluginResources } from '../model/path.js'
 
@@ -18,6 +18,9 @@ export class Push extends plugin {
             rule: [{
                 reg: '^#?exloli推送(\\d+)?$',
                 fnc: 'push'
+            }, {
+                reg: '^#?exloli推送本地漫画(\\d+)?$',
+                fnc: 'pushLocalComic'
             }]
         })
         this.task = {
@@ -42,34 +45,52 @@ export class Push extends plugin {
         let index = e.msg.match(/\d+$/)?.[0]
         let page
         if (!index) {
-            page = await ExClient.requestPage(ExClient.handleParam({}))
+            let exClient = new ExClient(Config.getConfig().isEx)
+            page = await exClient.requestPage(exClient.handleParam({}))
             if (e.isTask) {
-                page.comicList = ExClient.comicsFilter(page.comicList)
+                page.comicList = exClient.comicsFilter(page.comicList)
                 if (page.comicList.length === 0) {
                     logger.info("[Exloli-Plugin] 未发现新的漫画")
                     return
                 }
                 else {
                     logger.info(`[Exloli-Plugin] 发现新的漫画:${page.comicList.map(comic => comic.title).join("\n")}`)
-                    page.comicList = await ExClient.requestComics(page.comicList)
+                    page.comicList = await exClient.requestComics(page.comicList)
                 }
             }
             else {
                 page.comicList = [page.comicList.find(comic => comic.pages < Config.getConfig().max_pages)]
-                page.comicList = await ExClient.requestComics([page.comicList[0]])
+                page.comicList = await exClient.requestComics([page.comicList[0]])
             }
         } else {
             index = index - 1
             page = JSON.parse(await redis.get(`Yz:Exloli-plugin:${this.e.user_id}`))
             if (!page) return e.reply("你上次还未搜索过内容哦~")
             if (index < 0 || index >= page.comicList.length - 1) return e.reply("输入的页码范围有误~")
-            page.comicList = await ExClient.requestComics([page.comicList[index]])
+            let exClient = new ExClient(page.comicList[index].link.includes("exhentai.org"))
+            page.comicList = await exClient.requestComics([page.comicList[index]])
         }
         await this.pusher(page.comicList)
         if (!Config.getConfig().local_save) {
             page.comicList.map(comic => { deleteComic(comic) })
         }
         return true
+    }
+
+    async pushLocalComic(e) {
+        if (!fs.existsSync(`${pluginResources}/comics`)) return e.reply("本地还未存储任何漫画")
+        const directories = fs.readdirSync(`${pluginResources}/comics`).filter((file) => {
+            return fs.statSync(path.join(`${pluginResources}/comics`, file)).isDirectory()
+        })
+        if (directories.length === 0) return e.reply("本地还未存储任何漫画")
+        const index = e.msg.match(/\d+$/)?.[0]
+        if (index) {
+            const dirName = directories[index - 1]
+            if (fs.existsSync(`${pluginResources}/comics/${dirName}/info.json`)) {
+                const comicInfo = { ...JSON.parse(fs.readFileSync(`${pluginResources}/comics/${dirName}/info.json`)), dirName }
+                await this.pusher([comicInfo])
+            }
+        }
     }
 
     async pusher(comicList) {

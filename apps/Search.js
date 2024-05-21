@@ -58,7 +58,8 @@ export class Search extends plugin {
             }
             else return e.reply("当前页不能去到最后一页喵~")
         }
-        page = await ExClient.requestPage(ExClient.handleParam(page))
+        let exClient = new ExClient(page[page.type].includes("exhentai.org"))
+        page = await exClient.requestPage(exClient.handleParam(page))
         if (page.comicList.length === 0) {
             await this.e.reply("未搜索到结果")
         } else {
@@ -72,7 +73,7 @@ export class Search extends plugin {
             case 0:
                 if (this.e.msg.includes("默认")) { }
                 else if (this.e.msg.includes("无")) {
-                    UserParam[this.e.user_id].search_param = ''
+                    UserParam[this.e.user_id].search_param = ['']
                 }
                 else {
                     UserParam[this.e.user_id].search_param = this.e.msg.split(/[，,]/)
@@ -84,16 +85,16 @@ export class Search extends plugin {
             case 1:
                 if (this.e.msg.includes("默认")) { }
                 else if (this.e.msg.includes("全选")) {
+                    UserParam[this.e.user_id].category = {}
                     for (let key in CATEGORY) {
-                        UserParam[this.e.user_id].category = {}
                         UserParam[this.e.user_id].category[CATEGORY[key]] = true
                     }
                 } else {
+                    UserParam[this.e.user_id].category = {}
                     for (let key in CATEGORY) {
-                        UserParam[this.e.user_id].category = {}
                         UserParam[this.e.user_id].category[CATEGORY[key]] = false
                     }
-                    let number = this.e.msg.split(/[，,]/)
+                    let number = this.e.msg.trim().split(/[，,]/)
                     number.forEach(element => {
                         if (CATEGORY.hasOwnProperty(element)) {
                             UserParam[this.e.user_id].category[CATEGORY[element]] = true
@@ -113,14 +114,16 @@ export class Search extends plugin {
                 UserParam[this.e.user_id].step = 3
                 break
             case 3:
-                if (this.e.msg === "是") UserParam[this.e.user_id].isEx === true
+                if (this.e.msg === "是") UserParam[this.e.user_id].isEx = true
+                else UserParam[this.e.user_id].isEx = false
                 UserParam[this.e.user_id].step = -1
                 break
         }
         if (UserParam[this.e.user_id].step === -1) {
             this.finish("getInfo", this.e.isGroup)
             await this.e.reply("正在为您搜索中")
-            let page = await ExClient.requestPage(ExClient.handleParam(UserParam[this.e.user_id]))
+            let exClient = new ExClient(UserParam[this.e.user_id].isEx)
+            let page = await exClient.requestPage(exClient.handleParam(UserParam[this.e.user_id]))
             if (page.comicList.length === 0) {
                 await this.e.reply("未搜索到结果")
             } else {

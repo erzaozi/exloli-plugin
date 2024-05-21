@@ -36,8 +36,9 @@ export const CATEGORY = {
 const BASE_EX_URL = 'https://exhentai.org/?'
 const BASE_E_URL = 'https://e-hentai.org/?'
 
-export default new class ExClient {
-    constructor() {
+export default class ExClient {
+    constructor(isEx) {
+        this.isEx = !!isEx
         this.headerWithoutCookie = {
             'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -54,18 +55,17 @@ export default new class ExClient {
     }
 
     get header() {
-        const cookie = {
-            sl: 'dm_2',
-            ...Config.getConfig().ex_account
-        }
-        const cookieStr = Object.entries(cookie).map(([k, v]) => `${k}=${v}`).join(';')
-        return { ...this.headerWithoutCookie, "Cookie": cookieStr }
+        const cookie = Config.getConfig().ex_account
+        if (this.isEx) {
+            const cookieStr = Object.entries(cookie).map(([k, v]) => `${k}=${v}`).join(';')
+            return { ...this.headerWithoutCookie, "Cookie": cookieStr }
+        } else return this.headerWithoutCookie
     }
 
     calCats(category) {
         let number = 0
         for (let index in category) {
-            if (LABELS.hasOwnProperty(category[index])) {
+            if (category[index] === false) {
                 number += LABELS[index]
             }
         }
@@ -89,7 +89,7 @@ export default new class ExClient {
             form.append('advsearch', 1)
             form.append('f_srdd', mergeParam.f_srdd)
             form.append('f_cats', this.calCats(mergeParam.category))
-            return (isEx ? BASE_EX_URL : BASE_E_URL) + new URLSearchParams(form).toString()
+            return (mergeParam.isEx ? BASE_EX_URL : BASE_E_URL) + new URLSearchParams(form).toString()
         }
     }
 

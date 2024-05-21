@@ -26,11 +26,13 @@
           <div class="avatar th">
             <div class="index">#</div>
             <div class="model-name">{{list1}}</div>
+            <div class="model-name">{{list2}}</div>
           </div>
           {{each comicList comic idx}}
           <div class="avatar">
             <div class="index">{{seqNumber+idx+1}}</div>
             <div class="model-name">{{comic.list1}}</div>
+            <div class="model-name"><img id="cover" src="{{comic.list2}}"></div>
           </div>
           {{/each}}
         </div>
