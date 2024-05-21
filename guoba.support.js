@@ -90,7 +90,7 @@ export function supportGuoba() {
                 {
                     field: "ex_account.ipb_member_id",
                     label: "ipb_member_id",
-                    bottomHelpMessage: "必填",
+                    bottomHelpMessage: "里站必填",
                     component: "Input",
                     componentProps: {
                         placeholder: '请输入ipb_member_id',
@@ -99,7 +99,7 @@ export function supportGuoba() {
                 {
                     field: "ex_account.ipb_pass_hash",
                     label: "ipb_pass_hash",
-                    bottomHelpMessage: "必填",
+                    bottomHelpMessage: "里站必填",
                     component: "Input",
                     componentProps: {
                         placeholder: '请输入ipb_pass_hash',
@@ -108,7 +108,7 @@ export function supportGuoba() {
                 {
                     field: "ex_account.sk",
                     label: "sk",
-                    bottomHelpMessage: "必填",
+                    bottomHelpMessage: "里站必填",
                     component: "Input",
                     componentProps: {
                         placeholder: '请输入sk',
@@ -117,7 +117,7 @@ export function supportGuoba() {
                 {
                     field: "ex_account.igneous",
                     label: "igneous",
-                    bottomHelpMessage: "选填,不填只能进入表站",
+                    bottomHelpMessage: "里站必填",
                     component: "Input",
                     componentProps: {
                         placeholder: '请输入igneous',
@@ -132,64 +132,27 @@ export function supportGuoba() {
                     },
                 },
                 {
-                    field: "category.Doujinshi",
-                    label: "同人",
-                    bottomHelpMessage: "推送同人内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category.Manga",
-                    label: "漫画",
-                    bottomHelpMessage: "推送漫画内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category['Artist CG']",
-                    label: "美术CG",
-                    bottomHelpMessage: "推送美术CG内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category['Game CG']",
-                    label: "游戏CG",
-                    bottomHelpMessage: "推送游戏CG内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category.Western",
-                    label: "欧美",
-                    bottomHelpMessage: "推送欧美内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category['Non-H']",
-                    label: "R18-",
-                    bottomHelpMessage: "推送R18-内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category['Image Set']",
-                    label: "图集",
-                    bottomHelpMessage: "推送图集内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category.Cosplay",
-                    label: "Coser",
-                    bottomHelpMessage: "推送Coser内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category['Asian Porn']",
-                    label: "亚洲",
-                    bottomHelpMessage: "推送亚洲内容",
-                    component: "Switch",
-                },
-                {
-                    field: "category.Misc",
-                    label: "杂项",
-                    bottomHelpMessage: "推送杂项内容",
-                    component: "Switch",
+                  field: 'category',
+                  label: 'Exloli 搜索标签',
+                  component: "Select",
+                  bottomHelpMessage: '在选中标签下的漫画都会被推送',
+                  componentProps: {
+                    allowAdd: true,
+                    allowDel: true,
+                    mode: 'multiple',
+                    options: [
+                      { label: "同人", value: 'Doujinshi' },
+                      { label: "漫画", value: "Manga" },
+                      { label: "艺术CG", value: "ArtistCG" },
+                      { label: "游戏CG", value: "GameCG" },
+                      { label: "欧美", value: "Western" },
+                      { label: "无色情", value: "NonH" },
+                      { label: "图集", value: "ImageSet" },
+                      { label: "Coser", value: "Cosplay"},
+                      { label: "亚洲", value: "AsianPorn" },
+                      { label: "杂项", value: "Misc"}
+                    ],
+                  },
                 },
                 {
                     component: "Divider",
@@ -316,8 +279,8 @@ export function supportGuoba() {
                 for (let [keyPath, value] of Object.entries(data)) {
                     lodash.set(config, keyPath, value);
                 }
+                let newCategory = config.category
                 config = lodash.merge({}, Config.getConfig(), config);
-
                 config["push_list"].user = []
                 config["push_list"].users.forEach(({ push_bot, push_user }) => {
                     config["push_list"].user.push(`${push_bot}:${push_user}`);
@@ -329,7 +292,7 @@ export function supportGuoba() {
                     config["push_list"].group.push(`${push_bot}:${push_group}`);
                 });
                 delete config["push_list"].groups;
-
+                config.category = newCategory
                 Config.setConfig(config);
                 return Result.ok({}, '保存成功~');
             },

@@ -33,6 +33,12 @@ export class Push extends plugin {
             e.reply('臭萝莉控滚开啊！变态！！')
             return true
         }
+
+        if (Config.getConfig().push_list.user.length === 0 && Config.getConfig().push_list.group.length) {
+            if (!e.isTask) e.reply("您还未配置推送窗口")
+            return true
+        }
+
         let index = e.msg.match(/\d+$/)?.[0]
         index = index - 1
         let page
@@ -56,7 +62,7 @@ export class Push extends plugin {
         } else {
             page = JSON.parse(await redis.get(`Yz:Exloli-plugin:${this.e.user_id}`))
             if (!page) return e.reply("你上次还未搜索过内容哦~")
-            if (index < 0 || index >= page.comicList) return e.reply("输入的页码范围有误~")
+            if (index < 0 || index >= page.comicList.length - 1) return e.reply("输入的页码范围有误~")
             page.comicList = await ExClient.requestComics([page.comicList[index]])
         }
         await this.pusher(page.comicList)
@@ -111,8 +117,12 @@ export class Push extends plugin {
     }
 
     async mergeForward(comic) {
-        let picList = fs.readdirSync(`${pluginResources}/comics/${comic.dirName}`).filter(fileName => fileName.endsWith(".png"))
-        picList = picList.map(file => ({ message: segment.image(`${pluginResources}/comics/${comic.dirName}/${file}`) }))
+        let picList = []
+        const fileList = fs.readdirSync(`${pluginResources}/comics/${comic.dirName}`)
+        for (let index = 0; index < comic.pages; index++) {
+            if (fileList.includes(`${index}.png`)) picList.push({ message: segment.image(`${pluginResources}/comics/${comic.dirName}/${index}.png`) })
+            else picList.push({ message: segment.image(`${pluginResources}/failed.jpg`) })
+        }
         return picList
     }
 }

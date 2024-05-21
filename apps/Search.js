@@ -1,21 +1,10 @@
 import ExClient from '../components/Core.js'
 import plugin from '../../../lib/plugins/plugin.js'
+import { CATEGORY } from '../components/Core.js'
 
 let UserParam = {}
-export const CATEGORY = {
-    1: "Doujinshi",
-    2: "Manga",
-    3: "Artist CG",
-    4: "Game CG",
-    5: "Western",
-    6: "Non- H",
-    7: "Image Set",
-    8: "Cosplay",
-    9: "Asian Porn",
-    10: "Misc",
-}
 
-export class Push extends plugin {
+export class Search extends plugin {
     constructor() {
         super({
             name: 'ExLOLI-搜索',
@@ -38,7 +27,7 @@ export class Push extends plugin {
             return true
         }
         UserParam[e.user_id] = { step: 0 }
-        e.reply("请输入你要搜索的词条，并用“,”分隔，如不需要请填“无”,如采用默认设置可回复“默认”")
+        e.reply("请输入你要搜索的词条，并用“,”分隔\n1.如不需要请填“无”,\n2.采用默认设置可回复“默认”")
         this.setContext("getInfo", e.isGroup, 60, "操作已超时，请重新发送指令")
     }
     async changePage(e) {
@@ -89,7 +78,7 @@ export class Push extends plugin {
                     UserParam[this.e.user_id].search_param = this.e.msg.split(/[，,]/)
                 }
                 UserParam[this.e.user_id].step = 1
-                await this.e.reply("请输入你要搜索的漫画类型，如全选可回复“全选”，如采用默认设置可回复“默认”，如需要特定词条请回复数字序号并用”,”分隔\n\
+                await this.e.reply("请输入你要搜索的漫画类型\n1.全选可回复“全选”\n2.采用默认设置可回复“默认”\n3.如需要特定词条请回复数字序号并用“,”分隔\n\n\
 1.同人 2.漫画 3.美术CG\n4.游戏CG 5.欧美 6.无H\n7.图集 8.Coser 9.亚洲\n10.杂项")
                 break
             case 1:
@@ -111,7 +100,7 @@ export class Push extends plugin {
                         }
                     })
                 }
-                await this.e.reply("请输入最低星级0-5,如采用默认设置可回复“默认”")
+                await this.e.reply("请输入最低星级0-5\n1.如采用默认设置可回复“默认”")
                 UserParam[this.e.user_id].step = 2
                 break
             case 2:
@@ -120,7 +109,7 @@ export class Push extends plugin {
                     if (!isNaN(this.e.msg) && Number(this.e.msg) <= 5 && Number(this.e.msg) >= 0)
                         UserParam[this.e.user_id].f_srdd = Math.floor(Number(this.e.msg))
                 }
-                await this.e.reply("是否使用里站，是请回复“是”")
+                await this.e.reply("是否使用里站\n1.是请回复“是”")
                 UserParam[this.e.user_id].step = 3
                 break
             case 3:

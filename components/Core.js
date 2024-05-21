@@ -7,17 +7,30 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { FormData } from "formdata-polyfill/esm.min.js"
 import { timeToString, stringToTime } from "../utils/timer.js"
 
-const labels = {
+export const LABELS = {
     'Doujinshi': 2,
     'Manga': 4,
-    'Artist CG': 8,
-    'Game CG': 16,
+    'ArtistCG': 8,
+    'GameCG': 16,
     'Western': 512,
-    'Non-H': 256,
-    'Image Set': 32,
+    'NonH': 256,
+    'ImageSet': 32,
     'Cosplay': 64,
-    'Asian Porn': 128,
+    'AsianPorn': 128,
     'Misc': 1
+}
+
+export const CATEGORY = {
+    1: "Doujinshi",
+    2: "Manga",
+    3: "ArtistCG",
+    4: "GameCG",
+    5: "Western",
+    6: "NonH",
+    7: "ImageSet",
+    8: "Cosplay",
+    9: "AsianPorn",
+    10: "Misc",
 }
 
 const BASE_EX_URL = 'https://exhentai.org/?'
@@ -51,9 +64,9 @@ export default new class ExClient {
 
     calCats(category) {
         let number = 0
-        for (let label in category) {
-            if (!category[label]) {
-                number += labels[label]
+        for (let index in category) {
+            if (LABELS.hasOwnProperty(category[index])) {
+                number += LABELS[index]
             }
         }
         return number
@@ -117,8 +130,10 @@ export default new class ExClient {
     comicsFilter(comicList) {
         const config = Config.getConfig()
         const filtedComicList = comicList.filter(comic => (comic.timestamp > stringToTime(config.last_time)) && (comic.pages && comic.pages < config.max_pages))
-        config.last_time = timeToString(comicList[0].posted)
-        Config.setConfig(config)
+        if (comicList.length > 0) {
+            config.last_time = timeToString(comicList[0].posted)
+            Config.setConfig(config)
+        }
         return filtedComicList
     }
 
@@ -146,6 +161,7 @@ export default new class ExClient {
             })
             return comic
         }
+        // 用于获取下载图片的重试
         async function downloadPicture(picturePage, picSaverOnce, retry = 3) {
             const response = await fetch(picturePage, { headers, agent })
             const body = await response.text()
@@ -178,8 +194,20 @@ export default new class ExClient {
             do {
                 currentPage = nextPage
                 const picSaverOnce = async (pic) => await picSaver(pic, index)
-                nextPage = await downloadPicture(nextPage, picSaverOnce)
-                index++
+                // 用于获取下一页的重试
+                let retryTime = 3, success = false
+                while (retryTime > 0 && !success) {
+                    try {
+                        nextPage = await downloadPicture(nextPage, picSaverOnce)
+                        index++
+                        success = true
+                    } catch (error) {
+                        if (retryTime > 0) {
+                            logger.error((`[Exloli-Plugin]查看下一页失败，还剩余${retryTime--}次重试`))
+                            logger.error(error)
+                        } else break
+                    }
+                }
             } while (nextPage !== currentPage)
         }
         return comicsWithMoreInfo

@@ -1,7 +1,7 @@
 import plugin from '../../../lib/plugins/plugin.js'
 import _ from 'lodash'
 import Config from '../components/Config.js';
-import { CATEGORY } from './Search.js';
+import { CATEGORY } from '../components/Core.js';
 
 export class Setting extends plugin {
     constructor() {
@@ -114,7 +114,7 @@ export class Setting extends plugin {
         let config = Config.getConfig();
         if (isOpening) {
             config.push_pic = true
-            await e.reply("已打开漫画推送，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("已打开漫画推送，")
         } else {
             config.push_pic = false
             await e.reply("已关闭漫画推送")
@@ -132,7 +132,7 @@ export class Setting extends plugin {
         let config = Config.getConfig()
         if (isOpening) {
             config.local_save = true
-            await e.reply("已打开保存漫画(记得及时清理哦)，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("已打开保存漫画(记得及时清理哦)，保存路径为插件目录下resources/comics文件夹")
         } else {
             config.local_save = false
             await e.reply("已关闭保存漫画")
@@ -150,26 +150,30 @@ export class Setting extends plugin {
         let config = Config.getConfig()
         if (e.msg.includes("sk")) {
             config.ex_account.sk = value
-            await e.reply("sk已保存，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("sk已保存")
         } else if (e.msg.includes("id")) {
             config.ex_account.ipb_member_id = value
-            await e.reply("ipb_member_id已保存，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("ipb_member_id已保存")
         } else if (e.msg.includes("hash")) {
             config.ex_account.ipb_pass_hash = value
-            await e.reply("ipb_pass_hash已保存，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("ipb_pass_hash已保存")
         } else {
             config.ex_account.igneous = value
-            await e.reply("igneous已保存，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("igneous已保存")
         }
         Config.setConfig(config)
         return true
     }
 
     async checkCategory(e) {
+        if (!e.isMaster) {
+            e.reply('臭萝莉控滚开啊！变态！！')
+            return true;
+        }
         let msg = ["=====Exloli-Plugin标签====="]
         let config = Config.getConfig()
         for (let key in CATEGORY) {
-            msg.push(`${key}.${CATEGORY[key]}: ${config.category[CATEGORY[key]] ? "开启" : "关闭"}`)
+            msg.push(`${key}.${CATEGORY[key]}: ${config.category.includes(CATEGORY[key]) ? "开启" : "关闭"}`)
         }
         await e.reply(msg.join("\n"))
     }
@@ -183,13 +187,24 @@ export class Setting extends plugin {
         const index = e.msg.replace(/^#?exloli(开启|关闭)推送标签/, '').trim()
         let config = Config.getConfig()
         if (CATEGORY.hasOwnProperty(index)) {
-            config.category[CATEGORY[index]] = isOpening
+            let isAlready = config.category.indexOf(CATEGORY[index]) !== -1
             if (isOpening) {
-                await e.reply(`已开启推送标签[${CATEGORY[index]}]，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》`)
+                if (isAlready) {
+                    await e.reply(`${CATEGORY[index]}已经开启了哦~`)
+                } else {
+                    config.category.push(CATEGORY[index])
+                    Config.setConfig(config)
+                    await e.reply(`${CATEGORY[index]}已经开启了哦~`)
+                }
             } else {
-                await e.reply(`已关闭推送标签[${CATEGORY[index]}]`)
+                if (isAlready) {
+                    config.category.splice(index, 1)
+                    Config.setConfig(config)
+                    await e.reply(`${CATEGORY[index]}已经关闭了哦~`)
+                } else {
+                    await e.reply(`${CATEGORY[index]}已经关闭了哦~`)
+                }
             }
-            Config.setConfig(config)
         } else {
             await e.reply("修改失败，请检查输入的序号，可发送 #exloli查看推送标签 获取当前标签以及序号")
         }
@@ -223,7 +238,7 @@ export class Setting extends plugin {
         const level = e.msg.replace(/^#?exloli设置最低星级/, '').trim()
         if (!isNaN(level) && Number(level) <= 5 && Number(level) >= 0) {
             config.f_srdd = Math.floor(Number(level))
-            await e.reply(`最低星级已修改为${level}，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》`)
+            await e.reply(`最低星级已修改为${level}`)
             Config.setConfig(config)
         } else {
             await e.reply(`修改失败，星级为0-5，请检查输入`)
@@ -240,7 +255,7 @@ export class Setting extends plugin {
         const pageNumber = e.msg.replace(/^#?exloli设置最大页码/, '').trim()
         if (!isNaN(pageNumber) && Number(pageNumber) > 0) {
             config.max_pages = Math.floor(Number(pageNumber))
-            await e.reply(`最大页码已修改为${pageNumber}，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》`)
+            await e.reply(`最大页码已修改为${pageNumber}`)
             Config.setConfig(config)
         } else {
             await e.reply(`修改失败，请检查输入`)
@@ -257,10 +272,10 @@ export class Setting extends plugin {
         let config = Config.getConfig()
         if (isEx) {
             config.isEx = true
-            await e.reply("已切换里站，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("已切换至里站")
         } else {
             config.isEx = false
-            await e.reply("已切换表站，如果你在国内平台使用可能会违法！请熟读我们的《插件使用须知》")
+            await e.reply("已切换至表站")
         }
         Config.setConfig(config);
         return true
@@ -290,12 +305,13 @@ export class Setting extends plugin {
             return true;
         }
         let config = Config.getConfig()
-        const checkAdd = /(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)):([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])/
+        const checkAdd = /(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])/
         const address = e.msg.match(checkAdd)
         if (address) {
             config.proxy.host = address[1]
             config.proxy.port = address[5]
             await e.reply(`代理地址已修改为${address[1]}:${address[5]}`)
+            Config.setConfig(config)
         } else {
             await e.reply("修改失败，请检查输入，例如: 127.0.0.1:7890")
         }

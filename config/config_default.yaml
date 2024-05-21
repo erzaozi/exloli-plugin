@@ -12,20 +12,10 @@ ex_account:
   sk: ''
 # 过滤标签
 category: 
-  Doujinshi: false
-  Manga: false
-  Artist CG: false
-  Game CG: false
-  Western: false
-  Non-H: true
-  Image Set: false
-  Cosplay: false
-  Asian Porn: false
-  Misc: false
+  - NonH
 # 搜索参数
 search_param:
-  - loli
-  - Non-H
+  - genshin
 f_srdd: 4
 # 最大页码
 max_pages: 50
