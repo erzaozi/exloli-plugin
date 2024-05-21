@@ -34,13 +34,12 @@ export class Push extends plugin {
             return true
         }
 
-        if (Config.getConfig().push_list.user.length === 0 && Config.getConfig().push_list.group.length) {
+        if (Config.getConfig().push_list.user.length === 0 && Config.getConfig().push_list.group.length === 0) {
             if (!e.isTask) e.reply("您还未配置推送窗口")
             return true
         }
 
         let index = e.msg.match(/\d+$/)?.[0]
-        index = index - 1
         let page
         if (!index) {
             page = await ExClient.requestPage(ExClient.handleParam({}))
@@ -60,6 +59,7 @@ export class Push extends plugin {
                 page.comicList = await ExClient.requestComics([page.comicList[0]])
             }
         } else {
+            index = index - 1
             page = JSON.parse(await redis.get(`Yz:Exloli-plugin:${this.e.user_id}`))
             if (!page) return e.reply("你上次还未搜索过内容哦~")
             if (index < 0 || index >= page.comicList.length - 1) return e.reply("输入的页码范围有误~")
