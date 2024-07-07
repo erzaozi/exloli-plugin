@@ -132,7 +132,7 @@ export class Push extends plugin {
         Object.entries(comic.tags).forEach(([key, values]) => {
             text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
         })
-        text += `页数：${comic.pages}\n点赞数:${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}`
+        text += `页数：${comic.pages}\n点赞数：${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}`
         message.push(text)
         return message
     }
