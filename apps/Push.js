@@ -54,12 +54,13 @@ export class Push extends plugin {
                     return
                 }
                 else {
-                    logger.info(`[Exloli-Plugin] 发现新的漫画:${page.comicList.map(comic => comic.title).join("\n")}`)
+                    logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
                     page.comicList = await exClient.requestComics(page.comicList)
                 }
             }
             else {
-                page.comicList = [page.comicList.find(comic => comic.pages < Config.getConfig().max_pages)]
+                page.comicList = [page.comicList.find(comic => comic.pages <= Config.getConfig().max_pages)]
+                logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
                 page.comicList = await exClient.requestComics([page.comicList[0]])
             }
         } else {
@@ -68,6 +69,7 @@ export class Push extends plugin {
             if (!page) return e.reply("你上次还未搜索过内容哦~")
             if (index < 0 || index >= page.comicList.length - 1) return e.reply("输入的页码范围有误~")
             let exClient = new ExClient(page.comicList[index].link.includes("exhentai.org"))
+            logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
             page.comicList = await exClient.requestComics([page.comicList[index]])
         }
         await this.pusher(page.comicList)
@@ -98,11 +100,12 @@ export class Push extends plugin {
         const { user: userList, group: groupList } = pushList
         await Promise.all(comicList.map(async comic => {
             const comicMessage = await this.createComicMessage(comic)
+
             userList.forEach(async user => {
                 try {
                     await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendMsg(comicMessage)
                     if (pushPic) {
-                        await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendMsg(Bot.makeForwardMsg(await this.mergeForward(comic)))
+                        await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendFile(comic.PDFfile)
                     }
                 } catch (error) {
                     logger.error(error)
@@ -113,7 +116,7 @@ export class Push extends plugin {
                 try {
                     await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendMsg(comicMessage)
                     if (Config.getConfig().push_pic) {
-                        await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendMsg(Bot.makeForwardMsg(await this.mergeForward(comic)));
+                        await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendFile(comic.PDFfile)
                     }
                 } catch (error) {
                     logger.error(error)
@@ -125,25 +128,15 @@ export class Push extends plugin {
     async createComicMessage(comic) {
         let message = ["ExLOLI-PLUGIN 每日本子\n\n"]
         try {
-            const coverPic = await sharp(`${pluginResources}/comics/${comic.dirName}/0.png `).blur(10).toBuffer()
+            const coverPic = await sharp(`${pluginResources}/comics/${comic.dirName}/0.png`).blur(10).toBuffer()
             if (coverPic) message.push(segment.image(coverPic))
         } catch (err) { }
         let text = ''
         Object.entries(comic.tags).forEach(([key, values]) => {
             text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
         })
-        text += `页数：${comic.pages}\n点赞数：${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}`
+        text += `页数：${comic.pages}\n点赞数：${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}\n评分：${comic.star}`
         message.push(text)
         return message
-    }
-
-    async mergeForward(comic) {
-        let picList = []
-        const fileList = fs.readdirSync(`${pluginResources}/comics/${comic.dirName}`)
-        for (let index = 0; index < comic.pages; index++) {
-            if (fileList.includes(`${index}.png`)) picList.push({ message: segment.image(`${pluginResources}/comics/${comic.dirName}/${index}.png`) })
-            else picList.push({ message: segment.image(`${pluginResources}/failed.jpg`) })
-        }
-        return picList
     }
 }

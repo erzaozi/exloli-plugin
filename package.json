@@ -10,9 +10,11 @@
   "module": "index.js",
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
+    "@types/cheerio": "0.22.35",
     "node-fetch": "^3.3.2",
     "formdata-polyfill": "^4.0.10",
-    "sharp": "^0.33.4"
+    "sharp": "^0.33.4",
+    "@cantoo/pdf-lib": "^2.3.2"
   },
   "keywords": [
     "Yunzai-Bot",

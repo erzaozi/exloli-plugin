@@ -80,6 +80,74 @@ export function supportGuoba() {
                     },
                 },
                 {
+                    field: "f_srdd",
+                    label: "最低评分",
+                    bottomHelpMessage: "评分低于此的内容将不会被推送",
+                    component: "InputNumber",
+                    componentProps: {
+                        placeholder: '请输入最低评分',
+                        min: 0,
+                        max: 5,
+                        step: 1,
+                    },
+                },
+                {
+                    field: "max_pages",
+                    label: "最大页码",
+                    bottomHelpMessage: "页码数高于此的内容将不会被推送",
+                    component: "InputNumber",
+                    componentProps: {
+                        placeholder: '请输入最大页码',
+                        min: 1,
+                        max: 1000,
+                        step: 1,
+                    },
+                },
+                {
+                    field: "search_param",
+                    label: "搜索词条",
+                    bottomHelpMessage: "仅推送与参数相关的内容",
+                    component: "GTags",
+                    componentProps: {
+                        placeholder: '请输入您的搜索词条',
+                        allowAdd: true,
+                        allowDel: true,
+                        showPrompt: true,
+                        promptProps: {
+                            content: '请输入您的搜索词条',
+                            placeholder: '',
+                            okText: '添加',
+                            rules: [
+                                { required: true, message: 'Cookie不能为空' }
+                            ],
+                        },
+                        valueParser: ((value) => value.split(',') || []),
+                    },
+                },
+                {
+                    field: 'category',
+                    label: 'Exloli 搜索标签',
+                    component: "Select",
+                    bottomHelpMessage: '在选中标签下的漫画都会被推送',
+                    componentProps: {
+                        allowAdd: true,
+                        allowDel: true,
+                        mode: 'multiple',
+                        options: [
+                            { label: "同人", value: 'Doujinshi' },
+                            { label: "漫画", value: "Manga" },
+                            { label: "艺术CG", value: "ArtistCG" },
+                            { label: "游戏CG", value: "GameCG" },
+                            { label: "欧美", value: "Western" },
+                            { label: "无色情", value: "NonH" },
+                            { label: "图集", value: "ImageSet" },
+                            { label: "Coser", value: "Cosplay" },
+                            { label: "亚洲", value: "AsianPorn" },
+                            { label: "杂项", value: "Misc" }
+                        ],
+                    },
+                },
+                {
                     component: "Divider",
                     label: "Exloli 账号配置",
                     componentProps: {
@@ -132,34 +200,20 @@ export function supportGuoba() {
                     },
                 },
                 {
-                  field: 'category',
-                  label: 'Exloli 搜索标签',
-                  component: "Select",
-                  bottomHelpMessage: '在选中标签下的漫画都会被推送',
-                  componentProps: {
-                    allowAdd: true,
-                    allowDel: true,
-                    mode: 'multiple',
-                    options: [
-                      { label: "同人", value: 'Doujinshi' },
-                      { label: "漫画", value: "Manga" },
-                      { label: "艺术CG", value: "ArtistCG" },
-                      { label: "游戏CG", value: "GameCG" },
-                      { label: "欧美", value: "Western" },
-                      { label: "无色情", value: "NonH" },
-                      { label: "图集", value: "ImageSet" },
-                      { label: "Coser", value: "Cosplay"},
-                      { label: "亚洲", value: "AsianPorn" },
-                      { label: "杂项", value: "Misc"}
-                    ],
-                  },
-                },
-                {
                     component: "Divider",
                     label: "Exloli 管理员设置",
                     componentProps: {
                         orientation: "left",
                         plain: true,
+                    },
+                },
+                {
+                    field: "password",
+                    label: "password",
+                    bottomHelpMessage: "PDF万能密码",
+                    component: "Input",
+                    componentProps: {
+                        placeholder: '请输入password',
                     },
                 },
                 {
@@ -174,50 +228,12 @@ export function supportGuoba() {
                     bottomHelpMessage: "开启后将使用里站，请确保你的账号token全部填写",
                     component: "Switch",
                 },
+
                 {
-                    field: "f_srdd",
-                    label: "最低评分",
-                    bottomHelpMessage: "评分低于此的内容将不会被推送",
-                    component: "InputNumber",
-                    componentProps: {
-                        placeholder: '请输入最低评分',
-                        min: 0,
-                        max: 5,
-                        step: 1,
-                    },
-                },
-                {
-                    field: "max_pages",
-                    label: "最大页码",
-                    bottomHelpMessage: "页码数高于此的内容将不会被推送",
-                    component: "InputNumber",
-                    componentProps: {
-                        placeholder: '请输入最大页码',
-                        min: 1,
-                        max: 1000,
-                        step: 1,
-                    },
-                },
-                {
-                    field: "search_param",
-                    label: "搜索词条",
-                    bottomHelpMessage: "仅推送与参数相关的内容",
-                    component: "GTags",
-                    componentProps: {
-                        placeholder: '请输入您的搜索词条',
-                        allowAdd: true,
-                        allowDel: true,
-                        showPrompt: true,
-                        promptProps: {
-                            content: '请输入您的搜索词条',
-                            placeholder: '',
-                            okText: '添加',
-                            rules: [
-                                { required: true, message: 'Cookie不能为空' }
-                            ],
-                        },
-                        valueParser: ((value) => value.split(',') || []),
-                    },
+                    field: "local_save",
+                    label: "漫画保存本地",
+                    bottomHelpMessage: "所有推送的漫画都会保存本地，记得及时清理哦",
+                    component: "Switch",
                 },
                 {
                     component: "Divider",
@@ -253,12 +269,6 @@ export function supportGuoba() {
                         max: 65535,
                         step: 1,
                     },
-                },
-                {
-                    field: "send_base64",
-                    label: "推送图片设置",
-                    bottomHelpMessage: "漫画以base64发送，用以解决图片发不出的问题",
-                    component: "Switch",
                 },
             ],
             getConfigData() {

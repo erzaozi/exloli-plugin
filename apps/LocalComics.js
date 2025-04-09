@@ -38,7 +38,7 @@ export class LocalComics extends plugin {
             const comicList = directories.map((dir) => {
                 return {
                     list1: dir,
-                    list2: `${COMICS_PATH}/${dir}/0.png`
+                    list2: `${COMICS_PATH}/${dir}/0.webp`
                 }
             })
             const index = page ? (page - 1) * 100 : 0
@@ -69,7 +69,7 @@ export class LocalComics extends plugin {
         })
         if (directories.length === 0) return e.reply("本地还未存储任何漫画")
         if (e.msg.includes("全部")) {
-            const comicList = directories.map(dir => ({ dirName: dir }))
+            const comicList = directories.map(dir => ({ id: dir }))
             comicList.map(comic => deleteComic(comic))
             await e.reply("已清空所有本地漫画")
             return true
@@ -77,7 +77,7 @@ export class LocalComics extends plugin {
         let comics = e.msg.match(/本地漫画(([1-9][0-9]*[,，]?)*)/)?.[1]
         if (comics) {
             const comics2DelIndex = comics.split(/[,，]/).filter(ele => !!ele && !isNaN(ele)).map(ele => Number(ele)).filter(index => index <= directories.length)
-            const comicList = comics2DelIndex.map(index => ({ dirName: directories[index - 1] }))
+            const comicList = comics2DelIndex.map(index => ({ id: directories[index - 1] }))
             comicList.map(comic => deleteComic(comic))
             await e.reply(`已清空漫画${comics2DelIndex.join(",")}`)
             return true

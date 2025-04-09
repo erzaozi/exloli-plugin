@@ -30,3 +30,4 @@ proxy:
 last_time: 0
 # 数据库版本
 translate_db_version: null
+password: "114514"

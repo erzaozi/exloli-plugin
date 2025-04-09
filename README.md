@@ -11,7 +11,16 @@
 - **使用中遇到问题请加 QQ 群咨询：[707331865](https://qm.qq.com/q/TXTIS9KhO2)**
 
 > [!TIP]
-> 考虑到开发团队账号风险，该项目是该账号下首发的开源项目，由于第一版采用前后端分离结构，后端采用的图床被狠狠制裁了（悲），现如今考虑到一些用户有自定义搜索内容的需求，故将爬取逻辑重构，并发布了第二代版本，插件为 [CikeyQi](https://github.com/CikeyQi) 与作者共同开发，当前已实现推送和搜索功能，非常建议您搭配 imgS-plugin 的 E 站搜图食用哦~
+> ✨第一版：前后端分居，结果图床被制裁...（大悲）
+> ✨第二版：年久失修，差点变成电子木乃伊...
+> ✨第坤版：它终于又双叒叕复活啦！
+> 
+> 作者与 [CikeyQi](https://github.com/CikeyQi) 保留了超好用的第二版搜刮逻辑：
+> 🔍 自定义搜索（想搜什么奇怪的东西都可以啦~）
+> 📮 推送功能（你的电子小棉袄已上线）
+> ㊙️ 提供了PDF加密功能，企鹅你放马过来呀！
+> 
+> 💡 Pro小贴士：搭配 imgS-plugin 的E站搜图食用，风味更佳哦～
 
 ## 安装插件
 
@@ -49,17 +58,13 @@ pnpm install --filter=exloli-plugin
 
 <details> <summary>如何获取Cookie</summary>
 
-- 本插件功能是不符合中国大陆规定的，我们非常不建议你在国内平台使用，你可以使用 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 将其使用在 `Discord` 等国外平台
+- 本插件功能是不符合中国大陆规定的，我们非常不建议你在国内平台使用，你可以使用 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 将其使用在 `Discord` 等国外平台。
 
-- 登录 [表站](https://forums.e-hentai.org/)，第一行中如果出现 **Welcome Guest ( Log In | Register )**，说明你还未登录，如果已有账号则选择 **Log In**, 如还未注册则选择**Register**
-- 登录成功后打开控制台输入
+- 登录 [表站](https://forums.e-hentai.org/)，第一行中如果出现 **Welcome Guest ( Log In | Register )**，说明你还未登录，如果已有账号则选择 **Log In**, 如还未注册则选择**Register**。
+- 进入 [里站](https://exhentai.org/)，如果页面一片空白不要担心，那是因为cookie中的igneous无效，先尝试 **F12** 打开控制台，点击 **应用程序** ，再从侧边栏中点开Cookie，找到当前网站，接着删除所有Cookie（是里站不是表站！！！），尝试刷新页面。
+- 如果依然是空白可能是梯子有问题，请换节点继续尝试上面步骤。如果多次仍然获取不到 igneous 字段（19位字符串），可能是账号未获得里站权限。
 
-```javascript
-copy(document.cookie)
-console.log('Cookie已复制到剪切板')
-```
-
-- 在 cookie 中找到需要的字段，使用锅巴插件后台登录填写
+- 在 cookie 中找到需要的字段，使用锅巴插件后台登录填写。
 
 </details>
 
@@ -82,9 +87,10 @@ console.log('Cookie已复制到剪切板')
 2. 为什么我配置过了推送，之前能推送现在不能？
    - 在更换了机器人账号后需要再次配置。
 3. 账号配置是否应该全部填写
-   - 表站无需配置 cookie,漫画可自由查看，里站必填 ipb_member_id、ipb_pass_hash、sk、igneous
+   - 表站无需配置 cookie,漫画可自由查看，里站必填 ipb_member_id、ipb_pass_hash、sk、igneous。
 4. 为什么我的账号没有 igneous（igneous 如何获取）
    - 当你使用原生 ip 注册表站后，等待半个月将自动获得里站资格，当登录里站时将会看到 igneous，如果仍未获得可能是 ip 有问题，~~（图省事的话你可以考虑买一个账号）~~。
+5. igneous 现在统一改为 **19** 位字符串，并且有效期为一个季度，请及时刷新以及更新。
 
 ## 支持与贡献
 
