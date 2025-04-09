@@ -54,11 +54,13 @@ export default class ExClient {
     }
 
     calCats(category) {
-        let number = 0
-        for (let index of category) {
-            number += LABELS[index]
+        let number = 0;
+        for (const key in category) {
+            if (category[key]) {
+                number += LABELS[key] || 0;
+            }
         }
-        return 1023 - number
+        return 1023 - number;
     }
 
     handleParam(param) {
