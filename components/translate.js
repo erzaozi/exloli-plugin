@@ -22,15 +22,15 @@ async function updateTransDb() {
     try {
         let latestVersion = (await (await fetch('https://api.github.com/repos/EhTagTranslation/Database/releases', { agent })).json())[0].tag_name
         if (config.translate_db_version !== latestVersion) {
-            logger.mark(`[Exloli-Plugin]发现新版翻译文件:${latestVersion}`)
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`发现新版翻译文件`), logger.yellow(latestVersion));
             const db = await (await fetch(`https://github.com/EhTagTranslation/Database/releases/download/${latestVersion}/db.text.json`, { agent })).json()
             fs.writeFileSync(TRANS_DB_PATH, JSON.stringify(db))
             config.translate_db_version = latestVersion
             Config.setConfig(config)
-            logger.mark(`[Exloli-Plugin]更新新版翻译文件:${latestVersion}`)
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`更新翻译文件成功`), logger.green(latestVersion));
         }
-    } catch (err) {
-        logger.error(`[Exloli-Plugin]更新翻译文件失败，当前使用版本:${config.translate_db_version}`)
+    } catch (error) {
+        logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`更新翻译文件失败，当前使用版本 ${config.translate_db_version}`), logger.red(error));
     }
 }
 
@@ -40,8 +40,8 @@ async function getTransDb() {
             await updateTransDb()
         }
         return JSON.parse(fs.readFileSync(TRANS_DB_PATH), 'utf-8')
-    } catch (err) {
-        logger.error(`[Exloli-Plugin]获取翻译文件失败`)
+    } catch (error) {
+        logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`获取翻译文件失败`), logger.red(error));
     }
 }
 

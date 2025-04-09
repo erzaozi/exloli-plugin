@@ -118,7 +118,9 @@ export default class ExClient {
                             return baseScore + offset;
                         })()
                         page.comicList.push({ id, link, cover, title, uploader, pages, posted, timestamp, star })
-                    } catch (err) { }
+                    } catch (error) {
+                        logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`跳过漫画`), logger.red(error));
+                    }
                 }
             })
             const first = $('a#dfirst').attr('href')
@@ -184,8 +186,8 @@ export default class ExClient {
                 comic.tags[key] = values
             })
             return comic
-        } catch (err) {
-            logger.error(err)
+        } catch (error) {
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`获取更多信息失败`), logger.red(error));
             return null
         }
     }
@@ -212,14 +214,16 @@ export default class ExClient {
             if (!pic.ok) {
                 throw new Error()
             }
-            logger.mark(`[Exloli-Plugin]下载第 ${index} 张图片完成`)
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.green(`下载第 ${index} 张图片完成`));
             return Buffer.from(await pic.arrayBuffer())
         } catch (error) {
             clearTimeout(timeout)
-            logger.error(`[Exloli-Plugin]下载第 ${index} 张图片失败，还剩余${--retry}次重试`)
             if (retry > 0) {
                 return await this.downloadPicture(picturePage, retry, index)
-            } else return null
+            } else {
+                logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`下载第 ${index} 张图片失败`), logger.red(error));
+                return null
+            }
         }
     }
 
@@ -241,12 +245,12 @@ export default class ExClient {
 
             const pic = await fetch(comic.cover, { headers, agent })
             if (!pic.ok) {
-                logger.error("[Exloli-Plugin] 封面下载失败")
+                logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`封面下载失败`));
             } else {
                 try {
                     await coverSaver(pic.body)
-                } catch (err) {
-                    logger.error("[Exloli-Plugin] 封面下载失败")
+                } catch (error) {
+                    logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`封面下载失败`), logger.red(error));
                 }
             }
 

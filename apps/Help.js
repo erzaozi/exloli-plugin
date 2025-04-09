@@ -10,9 +10,9 @@ export class Help extends plugin {
   constructor() {
     super({
       /** 功能名称 */
-      name: 'ExLOLI-帮助',
+      name: 'ExLoli-帮助',
       /** 功能描述 */
-      dsc: 'ExLOLI 帮助',
+      dsc: 'ExLoli 帮助',
       event: 'message',
       /** 优先级，数字越小等级越高 */
       priority: 1009,
@@ -30,8 +30,8 @@ export class Help extends plugin {
   async help(e) {
     const helpCfg = {
       themeSet: false,
-      title: '#ExLOLI-plugin帮助',
-      subTitle: 'Yunzai-Bot & ExLOLI-plugin',
+      title: 'ExLoli-Plugin帮助',
+      subTitle: 'Yunzai-Bot & ExLoli-Plugin',
       colWidth: 265,
       theme: 'all',
       themeExclude: ['default'],
@@ -40,7 +40,7 @@ export class Help extends plugin {
     }
     const helpList = [
       {
-        group: 'ExLOLI-推送相关',
+        group: 'ExLoli-推送相关',
         list: [
           {
             icon: 1,
@@ -106,7 +106,7 @@ export class Help extends plugin {
         ]
       },
       {
-        group: 'ExLOLI-插件设置',
+        group: 'ExLoli-插件设置',
         list: [
           {
             icon: 6,
@@ -126,7 +126,7 @@ export class Help extends plugin {
           {
             icon: 10,
             title: '#exloli更新',
-            desc: '更新ExLOLI插件'
+            desc: '更新ExLoli插件'
           }
         ]
       }
@@ -255,7 +255,7 @@ export class Help extends plugin {
   async render(path, params, cfg) {
     const { e } = cfg
     if (!e.runtime) {
-      logger.mark(logger.blue('[Exloli-Plugin]\n'), logger.red('未找到e.runtime，请升级至最新版Yunzai'))
+      logger.mark(logger.blue('[Exloli PLUGIN]'), logger.red('未找到e.runtime，请升级至最新版Yunzai'))
     }
 
     const BotName = Version.isMiao ? 'Miao-Yunzai' : 'Yunzai-Bot'
@@ -266,8 +266,8 @@ export class Help extends plugin {
       if (package_json.version) {
         currentVersion = package_json.version
       }
-    } catch (err) {
-      logger.error('读取package.json失败', err)
+    } catch (error) {
+      logger.mark(logger.blue('[Exloli PLUGIN]'), logger.cyan(`读取 package.json 失败`), logger.red(error));
     }
     return e.runtime.render('exloli-plugin', path, params, {
       retType: cfg.retMsgId ? 'msgId' : 'default',

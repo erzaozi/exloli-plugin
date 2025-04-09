@@ -12,12 +12,12 @@ class Init {
   initConfig() {
     const config_default_path = `${pluginRoot}/config/config_default.yaml`
     if (!fs.existsSync(config_default_path)) {
-      logger.error('默认设置文件不存在，请检查或重新安装插件')
+      logger.mark(logger.blue('[WAVES PLUGIN]'), logger.red(`默认设置文件不存在，请检查或重新安装插件`));
       return true
     }
     const config_path = `${pluginRoot}/config/config/config.yaml`
     if (!fs.existsSync(config_path)) {
-      logger.error('设置文件不存在，将使用默认设置文件')
+      logger.mark(logger.blue('[WAVES PLUGIN]'), logger.red(`设置文件不存在，将使用默认设置文件`));
       fs.copyFileSync(config_default_path, config_path)
     }
     const config_default_yaml = Config.getDefConfig()

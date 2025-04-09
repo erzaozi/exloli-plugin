@@ -7,8 +7,8 @@ let UserParam = {}
 export class Search extends plugin {
     constructor() {
         super({
-            name: 'ExLOLI-搜索',
-            dsc: 'ExLOLI 搜索',
+            name: 'ExLoli-搜索',
+            dsc: 'ExLoli 搜索',
             event: 'message',
             priority: 1009,
             rule: [{

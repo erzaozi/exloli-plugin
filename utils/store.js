@@ -32,7 +32,7 @@ export default function storeComic(comic) {
             try {
                 await pipeline(pic, writer)
             } catch (error) {
-                logger.error(`[Exloli-Plugin]保存漫画图片第 ${index} 张失败: ${error}`)
+                logger.mark(logger.blue('[WAVES PLUGIN]'), logger.cyan(`保存漫画图片第 ${index} 张失败`), logger.red(error));
             } finally {
                 writer.end()
             }
@@ -43,7 +43,7 @@ export default function storeComic(comic) {
             try {
                 await pipeline(pic, writer)
             } catch (error) {
-                logger.error(`[Exloli-Plugin]保存封面图片失败: ${error}`)
+                logger.mark(logger.blue('[WAVES PLUGIN]'), logger.cyan(`保存封面图片失败`), logger.red(error));
             } finally {
                 writer.end()
             }
@@ -92,11 +92,11 @@ export default function storeComic(comic) {
 
 export function deleteComic(comic) {
     if (fs.existsSync(`${pluginResources}/comics/${comic.id}`)) {
-        fs.rm(`${pluginResources}/comics/${comic.id}`, { recursive: true }, (err) => {
-            if (err) {
-                logger.error(`删除漫画出错: ${err}`)
+        fs.rm(`${pluginResources}/comics/${comic.id}`, { recursive: true }, (error) => {
+            if (error) {
+                logger.mark(logger.blue('[WAVES PLUGIN]'), logger.cyan(`删除漫画出错`), logger.red(error));
             } else {
-                logger.info(`成功删除漫画: ${comic.id}`)
+                logger.mark(logger.blue('[WAVES PLUGIN]'), logger.cyan(`成功删除漫画`), logger.green(comic.id));
             }
         })
     }

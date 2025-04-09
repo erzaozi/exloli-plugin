@@ -11,8 +11,8 @@ import { pluginResources } from '../model/path.js'
 export class Push extends plugin {
     constructor() {
         super({
-            name: 'ExLOLI-推送',
-            dsc: 'ExLOLI 推送',
+            name: 'ExLoli-推送',
+            dsc: 'ExLoli 推送',
             event: 'message',
             priority: 1009,
             rule: [{
@@ -24,7 +24,7 @@ export class Push extends plugin {
             }]
         })
         this.task = {
-            name: '[Exloli-Plugin]自动推送',
+            name: 'ExLoli-自动推送',
             fnc: () => this.push({ isTask: true, msg: "exloli推送" }),
             cron: '*/5 * * * *',
             log: true
@@ -50,23 +50,17 @@ export class Push extends plugin {
             if (e.isTask) {
                 page.comicList = exClient.comicsFilter(page.comicList)
                 if (page.comicList.length === 0) {
-                    logger.info("[Exloli-Plugin] 未发现新的漫画")
+                    logger.mark(logger.blue('[Exloli PLUGIN]'), logger.green(`未发现新的漫画`));
                     return
                 }
                 else {
-                    logger.mark(
-                        logger.blue('[Exloli-Plugin]推送漫画\n'),
-                        logger.green(`====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
-                    )
+                    logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green(page.comicList.map(i => i?.id).join(",")));
                     page.comicList = await exClient.requestComics(page.comicList)
                 }
             }
             else {
                 page.comicList = [page.comicList.find(comic => comic.pages <= Config.getConfig().max_pages)]
-                logger.mark(
-                    logger.blue('[Exloli-Plugin]推送漫画\n'),
-                    logger.green(`====================\n ${page.comicList.map(i => i?.id).join(",")}\n ====================`)
-                )
+                logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green(page.comicList.map(i => i?.id).join(",")));
                 page.comicList = await exClient.requestComics([page.comicList[0]])
             }
         } else {
@@ -75,7 +69,7 @@ export class Push extends plugin {
             if (!page) return e.reply("你上次还未搜索过内容哦~")
             if (index < 0 || index >= page.comicList.length - 1) return e.reply("输入的页码范围有误~")
             let exClient = new ExClient(page.comicList[index].link.includes("exhentai.org"))
-            logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green(page.comicList.map(i => i?.id).join(",")));
             page.comicList = await exClient.requestComics([page.comicList[index]])
         }
         await this.pusher(page.comicList)
@@ -140,7 +134,7 @@ export class Push extends plugin {
         await Promise.all(allTasks)
     }
     async createComicMessage(comic) {
-        let message = ["ExLOLI-PLUGIN 每日本子\n\n"]
+        let message = ["ExLoli-PLUGIN 每日本子\n\n"]
         try {
             const coverPic = await sharp(`${pluginResources}/comics/${comic.dirName}/0.webp`).blur(10).toBuffer()
             if (coverPic) message.push(segment.image(coverPic))

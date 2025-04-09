@@ -3,8 +3,8 @@ import plugin from '../../../lib/plugins/plugin.js'
 export class Security extends plugin {
     constructor() {
         super({
-            name: 'ExLOLI-安全验证',
-            dsc: 'ExLOLI 安全验证',
+            name: 'ExLoli-安全验证',
+            dsc: 'ExLoli 安全验证',
             event: 'message',
             priority: -Infinity,
             rule: [{

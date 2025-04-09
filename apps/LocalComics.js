@@ -10,8 +10,8 @@ const COMICS_PATH = `${_path}/plugins/exloli-plugin/resources/comics`
 export class LocalComics extends plugin {
     constructor() {
         super({
-            name: 'ExLOLI-本地漫画',
-            dsc: 'ExLOLI 本地漫画',
+            name: 'ExLoli-本地漫画',
+            dsc: 'ExLoli 本地漫画',
             event: 'message',
             priority: 1009,
             rule: [{
