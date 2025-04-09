@@ -128,7 +128,7 @@ export class Push extends plugin {
     async createComicMessage(comic) {
         let message = ["ExLOLI-PLUGIN 每日本子\n\n"]
         try {
-            const coverPic = await sharp(`${pluginResources}/comics/${comic.dirName}/0.png`).blur(10).toBuffer()
+            const coverPic = await sharp(`${pluginResources}/comics/${comic.dirName}/0.webp`).blur(10).toBuffer()
             if (coverPic) message.push(segment.image(coverPic))
         } catch (err) { }
         let text = ''

@@ -241,7 +241,11 @@ export default class ExClient {
             if (!pic.ok) {
                 logger.error("[Exloli-Plugin] 封面下载失败")
             } else {
-                coverSaver(pic.body)
+                try {
+                    await coverSaver(pic.body)
+                } catch (err) {
+                    logger.error("[Exloli-Plugin] 封面下载失败")
+                }
             }
 
             const batchSize = 4
@@ -254,7 +258,9 @@ export default class ExClient {
                 const promises = batch.map(async (content, index) => {
                     const originalIndex = i + index;  // 计算原始索引
                     const pic = await this.downloadPicture(content, 3, originalIndex + 1)
-                    originalIndex === 0 ? comicSaver(pic, 0) : null
+                    try {
+                        originalIndex === 0 ? await comicSaver(pic, 0) : null
+                    } catch (err) { }
                     return pic || null
                 })
 
