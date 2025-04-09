@@ -99,24 +99,26 @@ export default class ExClient {
             $comics.each((index, comic) => {
                 if (index > 0) {
                     const $comic = $(comic)
-                    const link = $comic.find('td.gl3c.glname a').attr('href')
-                    const id = link.match(/\/(\d+)\//)[1]
-                    const cover = $comic.find('td.gl2c img').attr('src')
-                    const title = $comic.find('td.gl3c.glname a div.glink').text()
-                    const uploader = $comic.find('td.gl4c.glhide div a').text()
-                    const pages = Number($comic.find('td.gl4c.glhide div:nth-child(2)').text().replace(' pages', ''))
-                    const posted = $comic.find('div[id^="posted_"]').text()
-                    const timestamp = stringToTime(posted)
-                    const star = (() => {
-                        const style = $comic.find('div.ir').attr('style');
-                        const [x, y] = style.match(/background-position:([^;]+)/)[1].split(/\s+/);
+                    try {
+                        const link = $comic.find('td.gl3c.glname a').attr('href')
+                        const id = link.match(/\/(\d+)\//)[1]
+                        const cover = $comic.find('td.gl2c img').attr('src')
+                        const title = $comic.find('td.gl3c.glname a div.glink').text()
+                        const uploader = $comic.find('td.gl4c.glhide div a').text()
+                        const pages = Number($comic.find('td.gl4c.glhide div:nth-child(2)').text().replace(' pages', ''))
+                        const posted = $comic.find('div[id^="posted_"]').text()
+                        const timestamp = stringToTime(posted)
+                        const star = (() => {
+                            const style = $comic.find('div.ir').attr('style');
+                            const [x, y] = style.match(/background-position:([^;]+)/)[1].split(/\s+/);
 
-                        const baseScore = y === "-21px" ? 4.5 : 5;
-                        const offset = parseInt(x, 10) / 16;
+                            const baseScore = y === "-21px" ? 4.5 : 5;
+                            const offset = parseInt(x, 10) / 16;
 
-                        return baseScore + offset;
-                    })()
-                    page.comicList.push({ id, link, cover, title, uploader, pages, posted, timestamp, star })
+                            return baseScore + offset;
+                        })()
+                        page.comicList.push({ id, link, cover, title, uploader, pages, posted, timestamp, star })
+                    } catch (err) { }
                 }
             })
             const first = $('a#dfirst').attr('href')
