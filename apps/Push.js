@@ -54,13 +54,19 @@ export class Push extends plugin {
                     return
                 }
                 else {
-                    logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
+                    logger.mark(
+                        logger.blue('[Exloli-Plugin]推送漫画\n'),
+                        logger.green(`====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
+                    )
                     page.comicList = await exClient.requestComics(page.comicList)
                 }
             }
             else {
                 page.comicList = [page.comicList.find(comic => comic.pages <= Config.getConfig().max_pages)]
-                logger.mark(`[Exloli-Plugin] 推送漫画 \n====================\n ${page.comicList.map(i => i?.id).join(",")} \n====================`)
+                logger.mark(
+                    logger.blue('[Exloli-Plugin]推送漫画\n'),
+                    logger.green(`====================\n ${page.comicList.map(i => i?.id).join(",")}\n ====================`)
+                )
                 page.comicList = await exClient.requestComics([page.comicList[0]])
             }
         } else {
@@ -98,33 +104,41 @@ export class Push extends plugin {
     async pusher(comicList) {
         const { push_list: pushList, push_pic: pushPic } = Config.getConfig()
         const { user: userList, group: groupList } = pushList
-        await Promise.all(comicList.map(async comic => {
+
+        const allTasks = []
+
+        for (const comic of comicList) {
             const comicMessage = await this.createComicMessage(comic)
 
-            userList.forEach(async user => {
-                try {
-                    await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendMsg(comicMessage)
-                    if (pushPic) {
-                        await Bot[user.split(':')[0]]?.pickUser(user.split(':')[1]).sendFile(comic.PDFfile)
-                    }
-                } catch (error) {
-                    logger.error(error)
+            for (const user of userList) {
+                const [botId, userId] = user.split(':')
+                const bot = Bot[botId]?.pickUser(userId)
+                allTasks.push(
+                    bot?.sendMsg(comicMessage).catch(logger.error)
+                )
+                if (pushPic) {
+                    allTasks.push(
+                        bot?.sendFile(comic.PDFfile).catch(logger.error)
+                    )
                 }
-            });
+            }
 
-            groupList.forEach(async group => {
-                try {
-                    await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendMsg(comicMessage)
-                    if (Config.getConfig().push_pic) {
-                        await Bot[group.split(':')[0]]?.pickGroup(group.split(':')[1]).sendFile(comic.PDFfile)
-                    }
-                } catch (error) {
-                    logger.error(error)
+            for (const group of groupList) {
+                const [botId, groupId] = group.split(':')
+                const bot = Bot[botId]?.pickGroup(groupId)
+                allTasks.push(
+                    bot?.sendMsg(comicMessage).catch(logger.error)
+                )
+                if (pushPic) {
+                    allTasks.push(
+                        bot?.sendFile(comic.PDFfile).catch(logger.error)
+                    )
                 }
-            });
-        }))
+            }
+        }
+
+        await Promise.all(allTasks)
     }
-
     async createComicMessage(comic) {
         let message = ["ExLOLI-PLUGIN 每日本子\n\n"]
         try {
@@ -133,7 +147,7 @@ export class Push extends plugin {
         } catch (err) { }
         let text = ''
         Object.entries(comic.tags).forEach(([key, values]) => {
-            text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
+            text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`
         })
         text += `页数：${comic.pages}\n点赞数：${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}\n评分：${comic.star}`
         message.push(text)

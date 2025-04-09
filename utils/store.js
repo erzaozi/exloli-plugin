@@ -29,14 +29,24 @@ export default function storeComic(comic) {
         comicSaver: async (pic, index) => {
             const pipeline = promisify(Stream.pipeline)
             const writer = fs.createWriteStream(`${pluginResources}/comics/${comic.id}/${index}.webp`)
-            await pipeline(pic, writer)
-            writer.end()
+            try {
+                await pipeline(pic, writer)
+            } catch (error) {
+                logger.error(`[Exloli-Plugin]保存漫画图片第 ${index} 张失败: ${error}`)
+            } finally {
+                writer.end()
+            }
         },
         coverSaver: async (pic) => {
             const pipeline = promisify(Stream.pipeline)
             const writer = fs.createWriteStream(`${pluginResources}/comics/${comic.id}/cover.png`)
-            await pipeline(pic, writer)
-            writer.end()
+            try {
+                await pipeline(pic, writer)
+            } catch (error) {
+                logger.error(`[Exloli-Plugin]保存封面图片失败: ${error}`)
+            } finally {
+                writer.end()
+            }
         },
         generatePDF: async (picList) => {
             const pdfDoc = await PDFDocument.create()
@@ -65,10 +75,10 @@ export default function storeComic(comic) {
                 userPassword: comic.id,
                 ownerPassword: Config.getConfig().password,
                 permissions: { modifying: true },
-            });
+            })
             const pdfBytes = await pdfDoc.save()
 
-            fs.writeFileSync(`${pluginResources}/comics/${comic.id}/${comic.id}.pdf`, pdfBytes);
+            fs.writeFileSync(`${pluginResources}/comics/${comic.id}/${comic.id}.pdf`, pdfBytes)
             for (let i = 1; i < comic.content.length; i++) {
                 try {
                     fs.rmSync(`${pluginResources}/comics/${comic.id}/${i}.webp`)
