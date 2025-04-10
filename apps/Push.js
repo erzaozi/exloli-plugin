@@ -18,24 +18,24 @@ export class Push extends plugin {
             priority: 1009,
             rule: [{
                 reg: '^#?exloli推送(\\d+)?$',
-                fnc: 'push'
+                fnc: 'pushHandle'
             }, {
                 reg: '^#?exloli推送本地漫画(\\d+)?$',
-                fnc: 'pushLocalComic'
+                fnc: 'pushLocal'
             }, {
                 reg: '^#?exloli推送所有本地漫画$',
-                fnc: 'pushAllLocalComics'
+                fnc: 'pushAll'
             }]
         });
         this.task = {
             name: 'ExLoli-自动推送',
-            fnc: () => this.push({ isTask: true, msg: "exloli推送" }),
+            fnc: () => this.pushHandle({ isTask: true }),
             cron: '*/5 * * * *',
             log: true
         };
     }
 
-    async push(e) {
+    async pushHandle(e) {
         if (!e.isTask && !e.isMaster) {
             e.reply(NOT_MASTER_REPLY);
             return true;
@@ -47,7 +47,7 @@ export class Push extends plugin {
             return true;
         }
 
-        let index = e.msg.match(/\d+$/)?.[0];
+        let index = e.msg?.match(/\d+$/)?.[0];
         let page;
         const exClient = new ExClient(config.isEx);
 
@@ -86,7 +86,7 @@ export class Push extends plugin {
         }
 
         if (page?.comicList?.length > 0) {
-            await this.pusher(page.comicList);
+            await this.pushComic(page.comicList, index ? e : false);
             if (!config.local_save) {
                 page.comicList.forEach(comic => deleteComic(comic));
             }
@@ -95,7 +95,7 @@ export class Push extends plugin {
         return true;
     }
 
-    async pushLocalComic(e) {
+    async pushLocal(e) {
         if (!fs.existsSync(path.join(pluginResources, 'comics'))) return e.reply("本地还未存储任何漫画");
         const directories = fs.readdirSync(path.join(pluginResources, 'comics')).filter((file) => {
             return fs.statSync(path.join(pluginResources, 'comics', file)).isDirectory();
@@ -110,7 +110,7 @@ export class Push extends plugin {
                 if (fs.existsSync(infoFilePath)) {
                     try {
                         const comicInfo = { ...JSON.parse(fs.readFileSync(infoFilePath)), dirName };
-                        await this.pusher([comicInfo]);
+                        await this.pushComic([comicInfo], e);
                     } catch (error) {
                         logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`读取本地漫画信息失败`), logger.red(error));
                         e.reply("读取本地漫画信息失败");
@@ -126,7 +126,7 @@ export class Push extends plugin {
         }
     }
 
-    async pushAllLocalComics(e) {
+    async pushAll(e) {
         if (!e.isMaster) {
             e.reply(NOT_MASTER_REPLY);
             return true;
@@ -150,53 +150,62 @@ export class Push extends plugin {
         }
 
         if (allComicInfos.length > 0) {
-            await this.pusher(allComicInfos);
+            await this.pushComic(allComicInfos, e);
             e.reply(`已开始推送 ${allComicInfos.length} 本本地漫画`);
         } else {
             e.reply("没有找到本地漫画信息");
         }
     }
 
-    async pusher(comicList) {
-        const { push_list: pushList, push_pic: pushPic } = Config.getConfig()
-        const { user: userList, group: groupList } = pushList
+    async pushComic(comicList, event = null) {
+        const { push_list: pushList, push_pic: pushPic } = Config.getConfig();
+        let targets = [];
 
-        const allTasks = []
+        if (event) {
+            const botId = event.self_id;
+            const id = event.isGroup ? event.group_id : event.user_id;
+            targets.push({
+                botId,
+                id,
+                isGroup: event.isGroup
+            });
+        } else {
+            targets = [
+                ...pushList.user.map(u => ({
+                    botId: u.split(':')[0],
+                    id: u.split(':')[1],
+                    isGroup: false
+                })),
+                ...pushList.group.map(g => ({
+                    botId: g.split(':')[0],
+                    id: g.split(':')[1],
+                    isGroup: true
+                }))
+            ];
+        }
 
+        const allTasks = [];
         for (const comic of comicList) {
-            const comicMessage = await this.createComicMessage(comic)
+            const comicMessage = await this.createMessage(comic);
 
-            for (const user of userList) {
-                const [botId, userId] = user.split(':')
-                const bot = Bot[botId]?.pickUser(userId)
-                allTasks.push(
-                    bot?.sendMsg(comicMessage).catch(logger.error)
-                )
-                if (pushPic) {
-                    allTasks.push(
-                        bot?.sendFile(comic.PDFfile).catch(logger.error)
-                    )
-                }
-            }
+            for (const { botId, id, isGroup } of targets) {
+                const bot = isGroup ?
+                    Bot[botId]?.pickGroup(id) :
+                    Bot[botId]?.pickUser(id);
 
-            for (const group of groupList) {
-                const [botId, groupId] = group.split(':')
-                const bot = Bot[botId]?.pickGroup(groupId)
-                allTasks.push(
-                    bot?.sendMsg(comicMessage).catch(logger.error)
-                )
+                if (!bot) continue;
+
+                allTasks.push(bot.sendMsg(comicMessage).catch(logger.error));
                 if (pushPic) {
-                    allTasks.push(
-                        bot?.sendFile(comic.PDFfile).catch(logger.error)
-                    )
+                    allTasks.push(bot.sendFile(comic.PDFfile).catch(logger.error));
                 }
             }
         }
 
-        await Promise.all(allTasks)
+        await Promise.all(allTasks);
     }
 
-    async createComicMessage(comic) {
+    async createMessage(comic) {
         const message = ["ExLoli-PLUGIN 每日本子\n"];
         try {
             const coverPath = path.join(pluginResources, 'comics', comic.dirName || comic.id.toString(), 'cover.webp');
