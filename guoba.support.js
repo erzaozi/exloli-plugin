@@ -174,15 +174,6 @@ export function supportGuoba() {
                     },
                 },
                 {
-                    field: "ex_account.sk",
-                    label: "sk",
-                    bottomHelpMessage: "里站必填",
-                    component: "Input",
-                    componentProps: {
-                        placeholder: '请输入sk',
-                    },
-                },
-                {
                     field: "ex_account.igneous",
                     label: "igneous",
                     bottomHelpMessage: "里站必填",
