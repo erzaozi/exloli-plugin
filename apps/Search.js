@@ -157,7 +157,7 @@ export class Search extends plugin {
     createPageMessage(comicList) {
         const message = [];
         comicList.forEach((comic, index) => {
-            message.push({ message: `${index + 1}. 标题：${comic.title} 页数：${comic.pages}\n上传时间：${comic.posted}\n原始地址：${comic.link}` });
+            message.push({ message: `${index + 1}. 标题：${comic.title}\n页数：${comic.pages}\n上传时间：${comic.posted}\n原始地址：${comic.link}` });
         });
         message.push({ message: "查看当前页指定内容:\n“exloli推送1”\n切换页:\n“exloli第一页”，\n“exloli上一页”，\n“exlolo下一页”，\n“exloli最后一页”" });
         return message;

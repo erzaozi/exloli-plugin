@@ -197,7 +197,7 @@ export class Push extends plugin {
     }
 
     async createComicMessage(comic) {
-        const message = ["ExLoli-PLUGIN 每日本子\n\n"];
+        const message = ["ExLoli-PLUGIN 每日本子\n"];
         try {
             const coverPath = path.join(pluginResources, 'comics', comic.dirName || comic.id.toString(), 'cover.webp');
             if (fs.existsSync(coverPath)) {

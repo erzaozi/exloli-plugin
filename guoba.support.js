@@ -118,7 +118,7 @@ export function supportGuoba() {
                             placeholder: '',
                             okText: '添加',
                             rules: [
-                                { required: true, message: 'Cookie不能为空' }
+                                { required: true, message: '搜索词条不能为空' }
                             ],
                         },
                         valueParser: ((value) => value.split(',') || []),
@@ -180,14 +180,6 @@ export function supportGuoba() {
                     component: "Input",
                     componentProps: {
                         placeholder: '请输入igneous',
-                    },
-                },
-                {
-                    component: "Divider",
-                    label: "Exloli 推送配置",
-                    componentProps: {
-                        orientation: "left",
-                        plain: true,
                     },
                 },
                 {

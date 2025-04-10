@@ -15,15 +15,11 @@ export class Setting extends plugin {
             priority: 1009,
             rule: [
                 {
-                    /** 命令正则匹配 */
                     reg: '^#?exloli(开启|关闭)推送$',
-                    /** 执行方法 */
                     fnc: 'setting',
                 },
                 {
-                    /** 命令正则匹配 */
                     reg: '^#?exloli(开启|关闭)发送漫画$',
-                    /** 执行方法 */
                     fnc: 'sendPic',
                 },
                 {
@@ -31,7 +27,7 @@ export class Setting extends plugin {
                     fnc: 'savePic',
                 },
                 {
-                    reg: '^#?exloli设置(sk|id|hash|igneous)(.*)$',
+                    reg: '^#?exloli设置(id|hash|igneous)(.*)$',
                     fnc: 'setCookie',
                 },
                 {
@@ -146,12 +142,9 @@ export class Setting extends plugin {
             e.reply('臭萝莉控滚开啊！变态！！')
             return true
         }
-        const value = e.msg.replace(/^#?exloli设置(sk|id|hash|igneous)/, '').trim()
+        const value = e.msg.replace(/^#?exloli设置(id|hash|igneous)/, '').trim()
         let config = Config.getConfig()
-        if (e.msg.includes("sk")) {
-            config.ex_account.sk = value
-            await e.reply("sk已保存")
-        } else if (e.msg.includes("id")) {
+        if (e.msg.includes("id")) {
             config.ex_account.ipb_member_id = value
             await e.reply("ipb_member_id已保存")
         } else if (e.msg.includes("hash")) {

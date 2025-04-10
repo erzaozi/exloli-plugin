@@ -11,7 +11,7 @@ export class Security extends plugin {
                 reg: '^#?exloli.*$',
                 fnc: 'checkProtocol'
             }, {
-                reg: '^我已阅读并同意插件使用须知$',
+                reg: '^我已完整阅读并承诺遵守《插件使用须知》全部条款$',
                 fnc: 'agreeProtocol',
                 permission: "master"
             }]

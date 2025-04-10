@@ -79,7 +79,7 @@ export class Help extends plugin {
           },
           {
             icon: 12,
-            title: '#exloli设置设置最低星级2',
+            title: '#exloli设置最低星级2',
             desc: '过滤星级低于此的内容'
           },
           {
@@ -120,7 +120,7 @@ export class Help extends plugin {
           },
           {
             icon: 9,
-            title: '#?exloli设置(sk|id|hash|igneous)',
+            title: '#?exloli设置(id|hash|igneous)',
             desc: '设置里站cookie'
           },
           {
