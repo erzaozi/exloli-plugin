@@ -221,7 +221,7 @@ export default class ExClient {
             comic.star = ratingMatch ? parseFloat(ratingMatch[1]) : comic.star;
 
             const totalPages = Math.ceil(comic.pages / 20);
-            const contentPromises = Array.from({ length: totalPages }, (_, i) => this.requestContent(comic.link, i + 1));
+            const contentPromises = Array.from({ length: totalPages + 1 }, async (_, i) => await this.requestContent(comic.link, i));
             comic.content = (await Promise.all(contentPromises)).flat();
 
             comic.tags = {};
@@ -254,7 +254,6 @@ export default class ExClient {
 
         try {
             const response = await fetch(picturePage, { headers, agent, signal: controller.signal });
-            clearTimeout(timeout);
             const body = await response.text();
             const $ = cheerio.load(body);
             const picUrl = $("img#img").attr("src");
@@ -267,7 +266,6 @@ export default class ExClient {
             logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`下载第 ${index} 张图片`), logger.green('完成'));
             return Buffer.from(await picResponse.arrayBuffer());
         } catch (error) {
-            clearTimeout(timeout);
             if (retry > 0) {
                 logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`下载第 ${index} 张图片失败，进行重试 (${retry} 次剩余)`), logger.red(error));
                 return await this.downloadPicture(picturePage, retry - 1, index);
@@ -275,6 +273,8 @@ export default class ExClient {
                 logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`下载第 ${index} 张图片失败，已达到最大重试次数`), logger.red(error));
                 return null;
             }
+        } finally {
+            clearTimeout(timeout);
         }
     }
 

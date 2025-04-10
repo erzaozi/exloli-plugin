@@ -21,8 +21,6 @@ function setupProxyAgent() {
     }
 }
 
-setupProxyAgent();
-
 schedule.scheduleJob("0 0 */1 * *", updateTransDb);
 
 async function updateTransDb() {
@@ -31,6 +29,7 @@ async function updateTransDb() {
         fs.mkdirSync(TRANSLATE_DIR_PATH);
     }
     try {
+        setupProxyAgent();
         const response = await fetch('https://api.github.com/repos/EhTagTranslation/Database/releases', { agent: proxyAgent });
         if (!response.ok) {
             logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`获取翻译文件版本信息失败`), logger.red(response.status, response.statusText));
