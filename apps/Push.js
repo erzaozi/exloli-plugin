@@ -210,7 +210,7 @@ export class Push extends plugin {
         } catch (err) {
             logger.error('处理封面图片失败:', err);
         }
-        let text = '';
+        let text = `标题：${comic.title}\n`;
         if (comic.tags) {
             Object.entries(comic.tags).forEach(([key, values]) => {
                 text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;

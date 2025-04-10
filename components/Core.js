@@ -221,7 +221,9 @@ export default class ExClient {
             comic.star = ratingMatch ? parseFloat(ratingMatch[1]) : comic.star;
 
             const totalPages = Math.ceil(comic.pages / 20);
-            const contentPromises = Array.from({ length: totalPages + 1 }, async (_, i) => await this.requestContent(comic.link, i));
+            const contentPromises = Array.from({ length: totalPages }, (_, i) => 
+              this.requestContent(comic.link, i)
+            );
             comic.content = (await Promise.all(contentPromises)).flat();
 
             comic.tags = {};

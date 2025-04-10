@@ -1,6 +1,6 @@
 {
   "name": "exloli-plugin",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "基于Yunzai-Bot的loli本子推送插件，从E站抓取画廊并推送",
   "main": "index.js",
   "scripts": {

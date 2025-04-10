@@ -285,6 +285,7 @@ export function supportGuoba() {
                     config["push_list"].group.push(`${push_bot}:${push_group}`);
                 });
                 delete config["push_list"].groups;
+                config.search_param = data['search_param']
                 config.category = newCategory
                 Config.setConfig(config);
                 return Result.ok({}, '保存成功~');
