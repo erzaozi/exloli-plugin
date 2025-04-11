@@ -36,125 +36,107 @@ export class Push extends plugin {
     }
 
     async pushHandle(e) {
-        if (!e.isTask && !e.isMaster) {
-            e.reply(NOT_MASTER_REPLY);
-            return true;
-        }
-
+        if (!e.isTask && !e.isMaster) return e.reply(NOT_MASTER_REPLY) || true;
+    
         const config = Config.getConfig();
-        if (config.push_list.user.length === 0 && config.push_list.group.length === 0) {
-            if (!e.isTask) e.reply("您还未配置推送窗口");
-            return true;
-        }
-
-        let index = e.msg?.match(/\d+$/)?.[0];
+        const index = e.msg?.match(/\d+$/)?.[0];
         let page;
-        const exClient = new ExClient(config.isEx);
-
+    
+        const logPush = ids => logger.mark(logger.blue('[Exloli PLUGIN]'), logger.cyan('开始推送漫画'), logger.green(ids));
+        const getClient = isEx => new ExClient(isEx);
+        const handleResponse = async (client, comics) => {
+            logPush(comics.map(c => c.id));
+            return client.requestComics(comics);
+        };
+    
         if (!index) {
-            page = await exClient.requestPage(exClient.handleParam({}));
-            if (e.isTask) {
-                page.comicList = exClient.comicsFilter(page.comicList);
-                if (page.comicList.length === 0) {
-                    logger.mark(logger.blue('[Exloli PLUGIN]'), logger.yellow(`未发现新的漫画`));
-                    return;
-                } else {
-                    logger.mark(logger.blue('[Exloli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green(page.comicList.map(i => i?.id).join(",")));
-                    page.comicList = await exClient.requestComics(page.comicList);
-                }
-            } else {
-                const firstComic = page.comicList.find(comic => comic.pages !== undefined && comic.pages <= config.max_pages);
-                if (firstComic) {
-                    logger.mark(logger.blue('[Exloli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green([firstComic.id].join(",")));
-                    page.comicList = await exClient.requestComics([firstComic]);
-                } else {
-                    e.reply("没有找到符合页数限制的漫画");
-                    return true;
-                }
+            if (!config.push_list.user.length && !config.push_list.group.length) {
+                return !e.isTask && e.reply("您还未配置推送窗口") || true;
             }
+    
+            const client = getClient(config.isEx);
+            page = await client.requestPage(client.handleParam({}));
+            let comics = e.isTask ? client.comicsFilter(page.comicList) : 
+                [page.comicList.find(c => c.pages <= config.max_pages)];
+    
+            if (!comics.length || !comics[0]) return e.isTask ? 
+                logger.mark(logger.blue('[Exloli PLUGIN]'), logger.yellow('未发现新的漫画')) : 
+                e.reply("没有找到符合页数限制的漫画") || true;
+    
+            page.comicList = await handleResponse(client, e.isTask ? comics : [comics[0]]);
         } else {
-            index = parseInt(index) - 1;
-            const redisKey = `Yz:Exloli-plugin:search:${e.user_id}:page`;
-            const cachedPage = await redis.get(redisKey);
+            const cachedPage = await redis.get(`Yz:Exloli-plugin:search:${e.user_id}:page`);
             if (!cachedPage) return e.reply("你上次还未搜索过内容哦~");
+            
             page = JSON.parse(cachedPage);
-            if (index < 0 || index >= page.comicList.length) return e.reply("输入的页码范围有误~");
-            const isExLink = page.comicList[index].link.includes("exhentai.org");
-            const specificExClient = new ExClient(isExLink);
-            logger.mark(logger.blue('[Exloli PLUGIN]'), logger.cyan(`开始推送漫画`), logger.green([page.comicList[index]?.id].join(",")));
-            page.comicList = await specificExClient.requestComics([page.comicList[index]]);
+            const idx = parseInt(index) - 1;
+            if (idx < 0 || idx >= page.comicList.length) return e.reply("输入的页码范围有误~");
+            
+            const comic = page.comicList[idx];
+            page.comicList = await handleResponse(getClient(comic.link.includes('exhentai.org')), [comic]);
         }
-
-        if (page?.comicList?.length > 0) {
+    
+        if (page.comicList?.length) {
             await this.pushComic(page.comicList, index ? e : false);
-            if (!config.local_save) {
-                page.comicList.forEach(comic => deleteComic(comic));
-            }
+            !config.local_save && page.comicList.forEach(c => deleteComic(c));
         }
-
+    
         return true;
     }
 
     async pushLocal(e) {
-        if (!fs.existsSync(path.join(pluginResources, 'comics'))) return e.reply("本地还未存储任何漫画");
-        const directories = fs.readdirSync(path.join(pluginResources, 'comics')).filter((file) => {
-            return fs.statSync(path.join(pluginResources, 'comics', file)).isDirectory();
-        });
-        if (directories.length === 0) return e.reply("本地还未存储任何漫画");
+        const getPath = (...args) => path.join(pluginResources, 'comics', ...args);
+        const comicPath = getPath();
+    
+        if (!fs.existsSync(comicPath) || !fs.readdirSync(comicPath).some(f => fs.statSync(getPath(f)).isDirectory())) 
+            return e.reply("本地还未存储任何漫画");
+    
+        const directories = fs.readdirSync(comicPath).filter(f => fs.statSync(getPath(f)).isDirectory());
+        if (!directories.length) return e.reply("本地还未存储任何漫画");
+    
         const index = e.msg.match(/\d+$/)?.[0];
-        if (index) {
-            const dirIndex = parseInt(index) - 1;
-            if (dirIndex >= 0 && dirIndex < directories.length) {
-                const dirName = directories[dirIndex];
-                const infoFilePath = path.join(pluginResources, 'comics', dirName, 'info.json');
-                if (fs.existsSync(infoFilePath)) {
-                    try {
-                        const comicInfo = { ...JSON.parse(fs.readFileSync(infoFilePath)), dirName };
-                        await this.pushComic([comicInfo], e);
-                    } catch (error) {
-                        logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`读取本地漫画信息失败`), logger.red(error));
-                        e.reply("读取本地漫画信息失败");
-                    }
-                } else {
-                    e.reply(`本地漫画 ${index} 的信息文件不存在`);
-                }
-            } else {
-                e.reply(`本地漫画索引 ${index} 不存在`);
-            }
-        } else {
-            e.reply(`请指定要推送的本地漫画索引`);
+        if (!index) return e.reply("请指定要推送的本地漫画索引");
+    
+        const dirIndex = parseInt(index) - 1;
+        if (dirIndex < 0 || dirIndex >= directories.length) return e.reply(`本地漫画索引 ${index} 不存在`);
+    
+        const dirName = directories[dirIndex];
+        const infoFile = getPath(dirName, 'info.json');
+    
+        if (!fs.existsSync(infoFile)) return e.reply(`本地漫画 ${index} 的信息文件不存在`);
+    
+        try {
+            const comicInfo = { ...JSON.parse(fs.readFileSync(infoFile)), dirName };
+            await this.pushComic([comicInfo], e);
+        } catch (err) {
+            logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`读取本地漫画信息失败`), logger.red(err)) 
+            && e.reply("读取本地漫画信息失败");
         }
     }
 
     async pushAll(e) {
-        if (!e.isMaster) {
-            e.reply(NOT_MASTER_REPLY);
-            return true;
-        }
-        if (!fs.existsSync(path.join(pluginResources, 'comics'))) return e.reply("本地还未存储任何漫画");
-        const directories = fs.readdirSync(path.join(pluginResources, 'comics')).filter((file) => {
-            return fs.statSync(path.join(pluginResources, 'comics', file)).isDirectory();
-        });
-        if (directories.length === 0) return e.reply("本地还未存储任何漫画");
-
-        const allComicInfos = [];
-        for (const dirName of directories) {
-            const infoFilePath = path.join(pluginResources, 'comics', dirName, 'info.json');
-            if (fs.existsSync(infoFilePath)) {
-                try {
-                    allComicInfos.push({ ...JSON.parse(fs.readFileSync(infoFilePath)), dirName });
-                } catch (error) {
-                    logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`读取本地漫画信息失败`), logger.red(error));
-                }
+        if (!e.isMaster) return e.reply(NOT_MASTER_REPLY) || true;
+        
+        const comicPath = path.join(pluginResources, 'comics');
+        const getInfo = dir => {
+            try {
+                const info = path.join(comicPath, dir, 'info.json');
+                return fs.existsSync(info) && { ...JSON.parse(fs.readFileSync(info)), dir };
+            } catch (err) {
+                logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan('读取本地漫画信息失败'), logger.red(err));
             }
-        }
-
-        if (allComicInfos.length > 0) {
-            await this.pushComic(allComicInfos, e);
-            e.reply(`已开始推送 ${allComicInfos.length} 本本地漫画`);
-        } else {
-            e.reply("没有找到本地漫画信息");
-        }
+        };
+    
+        const directories = fs.existsSync(comicPath) && fs.readdirSync(comicPath).filter(f => 
+            fs.statSync(path.join(comicPath, f)).isDirectory()
+        );
+        
+        if (!directories?.length) return e.reply("本地还未存储任何漫画");
+        
+        const allComicInfos = directories.map(getInfo).filter(Boolean);
+        await (allComicInfos.length ? this.pushComic(allComicInfos, e) : e.reply("没有找到本地漫画信息"));
+        
+        return allComicInfos.length ? e.reply(`已成功推送 ${allComicInfos.length} 份本地漫画`) : true;
     }
 
     async pushComic(comicList, event = null) {
@@ -207,26 +189,34 @@ export class Push extends plugin {
 
     async createMessage(comic) {
         const message = ["ExLoli-PLUGIN 每日本子\n"];
-        try {
-            const coverPath = path.join(pluginResources, 'comics', comic.dirName || comic.id.toString(), 'cover.webp');
-            if (fs.existsSync(coverPath)) {
-                const buffer = await fs.readFileSync(coverPath);
-                const coverPic = await sharp(buffer).blur(10).toBuffer();
-                if (coverPic) message.push(segment.image(coverPic));
-            } else {
-                logger.warn(`封面文件不存在: ${coverPath}`);
+        
+        const addCover = async () => {
+            try {
+                const coverPath = path.join(pluginResources, 'comics', comic.dirName || comic.id, 'cover.webp');
+                if (!fs.existsSync(coverPath)) return logger.warn(`封面文件不存在: ${coverPath}`);
+                
+                const processed = await sharp(await fs.readFileSync(coverPath)).blur(10).toBuffer();
+                return segment.image(processed);
+            } catch (err) {
+                logger.error('处理封面图片失败:', err);
             }
-        } catch (err) {
-            logger.error('处理封面图片失败:', err);
-        }
-        let text = `标题：${comic.title}\n`;
-        if (comic.tags) {
-            Object.entries(comic.tags).forEach(([key, values]) => {
-                text += `${key}：${values.map(item => `#${item}`).join(' ')}\n`;
-            });
-        }
-        text += `页数：${comic.pages}\n点赞数：${comic.favorite}\n上传时间：${comic.posted}\n原始地址：${comic.link}\n评分：${comic.star}`;
-        message.push(text);
+        };
+    
+        const buildText = () => [
+            `标题：${comic.title}`,
+            ...(comic.tags ? Object.entries(comic.tags).map(([k, v]) => 
+                `${k}：${v.map(i => `#${i}`).join(' ')}`) : []),
+            `页数：${comic.pages}`,
+            `点赞数：${comic.favorite}`,
+            `上传时间：${comic.posted}`,
+            `原始地址：${comic.link}`,
+            `评分：${comic.star}`
+        ].join('\n');
+    
+        const cover = await addCover();
+        cover && message.push(cover);
+        message.push(buildText());
+    
         return message;
     }
 }

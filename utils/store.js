@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { pluginResources } from "../model/path.js";
-import fetch from 'node-fetch';
 import { PDFDocument } from '@cantoo/pdf-lib';
 import sharp from 'sharp';
 import Config from '../components/Config.js';
@@ -27,7 +26,7 @@ export default function storeComic(comic) {
         tags: comic.tags,
         content: comic.content,
         cover: `cover.webp`,
-        PDFfile: `${comic.id}.pdf`
+        PDFfile: path.join(comicDir, `${comic.id}.pdf`),
     }, null, 2));
 
     return {
@@ -82,17 +81,6 @@ export default function storeComic(comic) {
 
             const pdfFilePath = path.join(comicDir, `${comic.id}.pdf`);
             fs.writeFileSync(pdfFilePath, pdfBytes);
-
-            for (let i = 0; i < comic.content.length; i++) {
-                const webpFilePath = path.join(comicDir, `${i}.webp`);
-                try {
-                    fs.rmSync(webpFilePath);
-                } catch (error) {
-                    if (error.code !== 'ENOENT') {
-                        logger.mark(logger.blue('[ExLoli PLUGIN]'), logger.cyan(`删除 WebP 图片失败`), logger.red(error));
-                    }
-                }
-            }
 
             return pdfFilePath;
         }
